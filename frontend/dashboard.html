@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPM — Cloud-Agile Performance Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --bg:#f5f7f4; --surface:#fff; --bg3:#eef1ec;
+  --border:#dde5d9; --border2:#c8d5c2;
+  --text:#1a2618; --text2:#4a6045; --text3:#8aab82;
+  --green:#2d5a3d; --green2:#3d7a52;
+  --mint:#10b981; --amber:#d97706; --red:#dc2626; --blue:#2563eb;
+  --r:12px; --rsm:8px;
+  --sh:0 1px 3px rgba(45,90,61,.06),0 4px 16px rgba(45,90,61,.04);
+  --shmd:0 4px 24px rgba(45,90,61,.10);
+  --f:'DM Sans',sans-serif; --fs:'Fraunces',serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--f);}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:224px; background:var(--green);
+  position:fixed; left:0; top:0; bottom:0; z-index:200;
+  display:flex; flex-direction:column;
+}
+.logo{padding:26px 22px 20px;border-bottom:1px solid rgba(255,255,255,.08);}
+.logo-ey{font-size:9px;font-family:var(--fm);color:rgba(255,255,255,.32);letter-spacing:3px;text-transform:uppercase;margin-bottom:7px;}
+.logo-nm{font-family:var(--fs);font-size:20px;font-weight:300;color:#fff;line-height:1.2;font-style:italic;}
+.logo-sb{font-size:10px;color:rgba(255,255,255,.32);margin-top:5px;}
+.nav{padding:12px 0;flex:1;overflow-y:auto;}
+.nav-sec{padding:10px 20px 4px;font-size:9px;font-family:var(--fm);color:rgba(255,255,255,.26);letter-spacing:3px;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.5);transition:all .18s;border-right:3px solid transparent;}
+.ni svg{opacity:.6;flex-shrink:0;}
+.ni:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.06);}
+.ni.on{color:#fff;background:rgba(255,255,255,.1);border-right-color:#6ee7b7;}
+.ni.on svg{opacity:1;}
+.sb-bot{padding:14px;border-top:1px solid rgba(255,255,255,.08);}
+.api-pill{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(0,0,0,.2);border-radius:var(--rsm);cursor:pointer;transition:all .18s;}
+.api-pill:hover{background:rgba(0,0,0,.3);}
+.api-dot{width:7px;height:7px;border-radius:50%;background:#dc2626;flex-shrink:0;transition:background .3s;}
+.api-dot.on{background:#6ee7b7;}
+.api-ptxt{font-size:12px;color:rgba(255,255,255,.42);}
+
+/* ── WRAPPER (right of sidebar) ── */
+.wrapper{margin-left:224px;display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:60px; background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px; position:sticky; top:0; z-index:100;
+  flex-shrink:0;
+}
+.tb-l{display:flex;align-items:center;gap:12px;min-width:0;}
+.tb-title{font-family:var(--fs);font-size:16px;font-weight:300;color:var(--text);font-style:italic;white-space:nowrap;}
+.proj-pill{font-size:11px;font-family:var(--fm);background:var(--bg3);color:var(--green);padding:4px 12px;border-radius:20px;border:1px solid var(--border2);white-space:nowrap;}
+.tb-r{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sync-txt{font-size:11px;font-family:var(--fm);color:var(--text3);white-space:nowrap;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rsm);font-size:13px;font-weight:500;cursor:pointer;transition:all .18s;font-family:var(--f);border:none;outline:none;white-space:nowrap;}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-primary:hover{background:var(--green2);transform:translateY(-1px);box-shadow:var(--shmd);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--green);color:var(--green);}
+.btn-sage{background:var(--bg3);color:var(--green);border:1px solid var(--border2);}
+.btn-sage:hover{background:var(--border2);}
+.btn-pdf{background:#fff;color:var(--red);border:1px solid #fecaca;}
+.btn-pdf:hover{background:#fef2f2;}
+.btn-sm{padding:6px 13px;font-size:12px;}
+
+/* ── CONTENT ── */
+.content{padding:24px;flex:1;}
+.sec-lbl{font-size:9px;font-family:var(--fm);color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:22px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 15px;box-shadow:var(--sh);transition:border-color .2s,box-shadow .2s,transform .2s;position:relative;overflow:hidden;}
+.kpi:hover{border-color:var(--border2);box-shadow:var(--shmd);transform:translateY(-1px);}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.kpi.cg::after{background:var(--green);}
+.kpi.cm::after{background:var(--mint);}
+.kpi.ca::after{background:var(--amber);}
+.kpi.cb::after{background:var(--blue);}
+.kpi.cs::after{background:var(--text3);}
+.kpi-lbl{font-size:9px;font-family:var(--fm);color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.kpi-val{font-family:var(--fm);font-size:26px;color:var(--text);letter-spacing:-1.5px;font-weight:500;margin-bottom:4px;transition:all .4s;}
+.kpi-sub{font-size:9px;color:var(--text3);font-family:var(--fm);}
+.kpi-badge{display:inline-flex;align-items:center;font-size:9px;font-family:var(--fm);padding:2px 8px;border-radius:20px;margin-top:8px;}
+.bu{background:#d1fae5;color:#065f46;}
+.bd{background:#fee2e2;color:#991b1b;}
+.bn{background:var(--bg3);color:var(--text3);}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--sh);}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:14px;font-weight:500;color:var(--text);}
+.ctag{font-size:9px;font-family:var(--fm);padding:3px 9px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;}
+.tai{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;}
+.tlive{background:var(--bg3);color:var(--text3);border:1px solid var(--border2);}
+
+/* ── GRID ── */
+.row{display:grid;gap:12px;margin-bottom:22px;}
+.r2{grid-template-columns:1fr 1fr;}
+.r3{grid-template-columns:2fr 1fr;}
+.ch-wrap{position:relative;height:200px;}
+
+/* ── INSIGHTS ── */
+.ins-list{display:flex;flex-direction:column;gap:9px;}
+.ins-item{display:flex;gap:11px;padding:12px 13px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);align-items:flex-start;animation:up .35s ease;}
+.ins-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:#fff;border:1px solid var(--border);}
+.ins-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ins-txt{font-size:12px;color:var(--text2);line-height:1.55;}
+.ins-ph{font-size:13px;color:var(--text3);line-height:1.7;padding:4px 0;}
+.ins-ph strong{color:var(--green);}
+.spin{width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;}
+
+/* ── SLIDERS ── */
+.wr{margin-bottom:18px;}
+.wh{display:flex;justify-content:space-between;margin-bottom:6px;}
+.wl{font-size:12px;color:var(--text2);}
+.wv{font-family:var(--fm);font-size:12px;color:var(--text);font-weight:500;}
+.slider{width:100%;height:3px;border-radius:2px;appearance:none;-webkit-appearance:none;background:var(--border2);cursor:pointer;outline:none;}
+.slider::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;background:var(--green);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(45,90,61,.3);}
+.cas-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rsm);padding:20px;text-align:center;}
+.cas-lbl{font-size:9px;font-family:var(--fm);color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.cas-num{font-family:var(--fm);font-size:46px;color:var(--green);letter-spacing:-3px;font-weight:500;line-height:1;}
+.cas-grade{font-size:13px;color:var(--text2);margin-top:7px;font-weight:500;}
+.cas-f{font-family:var(--fm);font-size:10px;color:var(--text3);margin-top:9px;line-height:1.7;}
+
+/* ── MATURITY ── */
+.mat-track{display:flex;border-radius:var(--rsm);overflow:hidden;border:1px solid var(--border);margin-bottom:12px;}
+.ms{flex:1;padding:13px 8px;text-align:center;cursor:pointer;transition:all .2s;border-right:1px solid var(--border);background:var(--bg3);}
+.ms:last-child{border-right:none;}
+.ms:hover{background:var(--border);}
+.ms.on{background:#fff;box-shadow:inset 0 -3px 0 var(--green);}
+.ms-n{font-size:9px;font-family:var(--fm);color:var(--text3);margin-bottom:3px;}
+.ms-name{font-size:11px;font-weight:600;color:var(--text2);}
+.ms.on .ms-name{color:var(--green);}
+.mat-desc{font-size:13px;color:var(--text2);line-height:1.65;padding:13px;background:var(--bg3);border-radius:var(--rsm);border:1px solid var(--border);}
+.mat-ai{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:var(--fm);color:var(--green);margin-top:10px;}
+
+/* ── COMPARE ── */
+.cmp-empty{text-align:center;padding:44px;background:var(--bg3);border:2px dashed var(--border2);border-radius:var(--r);}
+.cmp-hdr-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 30px;gap:10px;padding:10px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:8px;font-size:9px;font-family:var(--fm);color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;align-items:center;}
+.cmp-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 30px;gap:10px;padding:14px 16px;background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:8px;align-items:center;animation:up .3s ease;}
+.cmp-nm{font-size:13px;font-weight:600;color:var(--text);}
+.cmp-sb{font-size:10px;font-family:var(--fm);color:var(--text3);}
+.cmp-val{font-family:var(--fm);font-size:14px;font-weight:500;text-align:center;}
+.cmp-barwrap{display:flex;align-items:center;gap:6px;}
+.cmp-bg{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.cmp-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.cmp-del{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;}
+.cmp-del:hover{border-color:var(--red);color:var(--red);}
+.cmp-winner{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#f0f7f3;border:1px solid var(--border2);border-radius:var(--r);margin-top:4px;}
+.cmp-ch{position:relative;height:220px;margin-top:14px;}
+
+/* ── PDF MODAL ── */
+.pdf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.pdf-opt{border:2px solid var(--border);border-radius:var(--r);padding:16px 12px;cursor:pointer;transition:all .2s;text-align:center;}
+.pdf-opt:hover{border-color:var(--border2);}
+.pdf-opt.sel{border-color:var(--green);background:#f0f7f3;}
+.pdf-opt-icon{font-size:22px;margin-bottom:7px;}
+.pdf-opt-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.pdf-opt-desc{font-size:10px;color:var(--text3);line-height:1.5;}
+.exp-prog{display:none;align-items:center;gap:10px;padding:11px;background:var(--bg3);border-radius:var(--rsm);font-size:13px;color:var(--text2);}
+
+/* ── MODALS ── */
+.overlay{position:fixed;inset:0;background:rgba(26,38,24,.4);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:620px;max-height:88vh;overflow-y:auto;}
+.modal-sm{width:480px;}
+.modal-hd{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;}
+.modal-title{font-family:var(--fs);font-size:17px;font-weight:300;font-style:italic;}
+.modal-body{padding:24px;}
+.modal-ft{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+.xbtn{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;}
+.xbtn:hover{border-color:var(--green);color:var(--green);}
+.fg{margin-bottom:16px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+label{display:block;font-size:10px;font-family:var(--fm);color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+input,select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;color:var(--text);font-family:var(--f);font-size:13px;outline:none;transition:border-color .15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--green);background:#fff;}
+textarea{resize:vertical;min-height:48px;font-family:var(--fm);font-size:11px;}
+.hint{font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--fm);}
+.hdiv{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* USER BAR */
+.user-bar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,.08);border-radius:8px;margin:0 14px 12px;cursor:pointer;transition:all .18s;}
+.user-bar:hover{background:rgba(255,255,255,.14);}
+.user-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:12px;color:rgba(255,255,255,.85);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-role{font-size:9px;font-family:var(--fm);color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase;}
+.user-logout{font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.1);transition:all .15s;white-space:nowrap;}
+.user-logout:hover{color:var(--red);border-color:rgba(220,38,38,.5);}
+.save-indicator{display:none;align-items:center;gap:6px;font-size:11px;font-family:var(--fm);color:var(--green);padding:6px 12px;background:#f0f7f3;border:1px solid var(--border2);border-radius:var(--rsm);}
+.save-indicator.show{display:flex;}
+.demo-banner{background:#fef3c7;border-bottom:1px solid #fde68a;padding:8px 24px;font-size:12px;color:#92400e;display:flex;align-items:center;justify-content:space-between;}
+.demo-banner a{color:var(--green);font-weight:600;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-ey">CAPM · v1.0</div>
+    <div class="logo-nm">Cloud-Agile<br>Monitor</div>
+    <div class="logo-sb">Cloud-Agile Monitor</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-sec">Analytics</div>
+    <div class="ni on" onclick="showTab('overview',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Overview
+    </div>
+    <div class="ni" onclick="showTab('compare',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Compare Projects
+    </div>
+    <div class="nav-sec">Tools</div>
+    <div class="ni" onclick="openData()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Input Data
+    </div>
+    <div class="ni" onclick="runAI()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Run AI Analysis
+    </div>
+    <div class="ni" onclick="openPDF()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Export PDF
+    </div>
+  </nav>
+  <div id="userBar" class="user-bar" style="display:none;" onclick="toggleUserMenu()">
+    <div class="user-av" id="userAv">?</div>
+    <div class="user-info">
+      <div class="user-name" id="userName">Loading...</div>
+      <div class="user-role" id="userRole">demo mode</div>
+    </div>
+    <span class="user-logout" onclick="logout(event)" title="Sign out">↩</span>
+  </div>
+  <div class="sb-bot">
+    <div class="api-pill" onclick="openApi()">
+      <div class="api-dot" id="apiDot"></div>
+      <span class="api-ptxt" id="apiTxt">Connect AI Engine</span>
+    </div>
+  </div>
+</aside>
+
+<!-- WRAPPER (everything right of sidebar) -->
+<div class="wrapper">
+  <div class="demo-banner" id="demoBanner" style="display:none;">
+    <span>You're in <strong>demo mode</strong> — data is not saved between sessions.</span>
+    <a href="login.html">Create free account →</a>
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-l">
+      <span class="tb-title">Performance Dashboard</span>
+      <span class="proj-pill" id="projPill">Demo Project</span>
+    </div>
+    <div class="tb-r">
+      <div class="save-indicator" id="saveInd">✓ Saved to server</div>
+      <span class="sync-txt" id="syncTxt">Last sync: just now</span>
+      <button class="btn btn-ghost btn-sm" onclick="openData()">+ Input Data</button>
+      <button class="btn btn-pdf btn-sm" onclick="openPDF()">↓ Export PDF</button>
+      <button class="btn btn-primary btn-sm" onclick="runAI()">⚡ Run AI Analysis</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- TAB: OVERVIEW -->
+    <div id="tab-overview">
+      <div class="sec-lbl">Core Metrics</div>
+      <div class="kpi-grid">
+        <div class="kpi cg">
+          <div class="kpi-lbl">Cost Elasticity Index</div>
+          <div class="kpi-val" id="vCEI">—</div>
+          <div class="kpi-sub">CEI = ΔCost / ΔWorkload</div>
+          <div class="kpi-badge bn" id="bCEI">pending</div>
+        </div>
+        <div class="kpi cm">
+          <div class="kpi-lbl">Sprint Velocity Stability</div>
+          <div class="kpi-val" id="vSVS">—</div>
+          <div class="kpi-sub">SVS = 1 − σ/μ velocity</div>
+          <div class="kpi-badge bn" id="bSVS">pending</div>
+        </div>
+        <div class="kpi ca">
+          <div class="kpi-lbl">Resource Realloc. Efficiency</div>
+          <div class="kpi-val" id="vRRE">—</div>
+          <div class="kpi-sub">RRE = Optimal / Total</div>
+          <div class="kpi-badge bn" id="bRRE">pending</div>
+        </div>
+        <div class="kpi cb">
+          <div class="kpi-lbl">Cloud-Agile Synergy Coeff.</div>
+          <div class="kpi-val" id="vCAS">—</div>
+          <div class="kpi-sub">CAS = w₁·CEI + w₂·SVS + w₃·RRE</div>
+          <div class="kpi-badge bn" id="bCAS">pending</div>
+        </div>
+        <div class="kpi cs">
+          <div class="kpi-lbl">Agile Maturity Level</div>
+          <div class="kpi-val" id="vMAT" style="font-size:17px;padding-top:5px;">—</div>
+          <div class="kpi-sub">Elastic Agile Maturity Model</div>
+          <div class="kpi-badge bn" id="bMAT">AI classified</div>
+        </div>
+      </div>
+
+      <div class="row r2">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Cloud Cost vs Sprint Velocity</span><span class="ctag tlive">Live</span></div>
+          <div class="ch-wrap"><canvas id="ch1"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Resource Allocation Efficiency</span><span class="ctag tlive">Live</span></div>
+          <div class="ch-wrap"><canvas id="ch2"></canvas></div>
+        </div>
+      </div>
+
+      <div class="row r3">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">AI Auto-Insight Engine</span><span class="ctag tai">AI Powered</span></div>
+          <div id="insPH" class="ins-ph">Enter your project data and click <strong>Run AI Analysis</strong> to generate intelligent insights about your cloud-agile performance.</div>
+          <div class="ins-list" id="insList" style="display:none;"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">CAS Weight Optimizer</span><span class="ctag tai">AI Powered</span></div>
+          <div class="wr">
+            <div class="wh"><span class="wl">w₁ · Cost Elasticity (CEI)</span><span class="wv" id="w1v">0.35</span></div>
+            <input type="range" class="slider" id="w1" min="0" max="1" step="0.01" value="0.35" oninput="wChg()">
+          </div>
+          <div class="wr">
+            <div class="wh"><span class="wl">w₂ · Sprint Stability (SVS)</span><span class="wv" id="w2v">0.40</span></div>
+            <input type="range" class="slider" id="w2" min="0" max="1" step="0.01" value="0.40" oninput="wChg()">
+          </div>
+          <div class="wr">
+            <div class="wh"><span class="wl">w₃ · Resource Efficiency (RRE)</span><span class="wv" id="w3v">0.25</span></div>
+            <input type="range" class="slider" id="w3" min="0" max="1" step="0.01" value="0.25" oninput="wChg()">
+          </div>
+          <div class="cas-box">
+            <div class="cas-lbl">CAS Score</div>
+            <div class="cas-num" id="casNum">—</div>
+            <div class="cas-grade" id="casGrade">Enter data to calculate</div>
+            <div class="cas-f" id="casF">CAS = w₁(CEI) + w₂(SVS) + w₃(RRE)</div>
+          </div>
+          <button class="btn btn-sage" id="optBtn" style="width:100%;margin-top:11px;justify-content:center;" onclick="aiWeights()">⚡ AI Optimize Weights</button>
+          <div id="wNote" style="display:none;margin-top:9px;font-size:12px;color:var(--text2);line-height:1.6;"></div>
+        </div>
+      </div>
+
+      <div class="sec-lbl">Elastic Agile Maturity Model</div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Maturity Classification</span><span class="ctag tai">AI Classified</span></div>
+        <div class="mat-track">
+          <div class="ms" data-l="1" onclick="pickMat(1)"><div class="ms-n">L1</div><div class="ms-name">Static</div></div>
+          <div class="ms" data-l="2" onclick="pickMat(2)"><div class="ms-n">L2</div><div class="ms-name">Reactive</div></div>
+          <div class="ms" data-l="3" onclick="pickMat(3)"><div class="ms-n">L3</div><div class="ms-name">Proactive</div></div>
+          <div class="ms" data-l="4" onclick="pickMat(4)"><div class="ms-n">L4</div><div class="ms-name">Predictive</div></div>
+          <div class="ms" data-l="5" onclick="pickMat(5)"><div class="ms-n">L5</div><div class="ms-name">Autonomous</div></div>
+        </div>
+        <div class="mat-desc" id="matDesc">Click a level to learn about it, or run AI Analysis to auto-classify your project.</div>
+        <div class="mat-ai" id="matAI" style="display:none;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          <span id="matAItxt"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: COMPARE -->
+    <div id="tab-compare" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="sec-lbl" style="margin-bottom:4px;">Project Benchmarking</div>
+          <div style="font-size:13px;color:var(--text2);">Compare CAS, CEI, SVS, RRE across multiple projects side by side.</div>
+        </div>
+        <div style="display:flex;gap:9px;">
+          <button class="btn btn-ghost btn-sm" onclick="loadSamples()">Load Sample Projects</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddProj()">+ Add Project</button>
+        </div>
+      </div>
+      <div id="cmpEmpty" class="cmp-empty">
+        <div style="font-size:28px;margin-bottom:10px;">📊</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px;">No projects to compare yet</div>
+        <div style="font-size:13px;color:var(--text3);line-height:1.6;">Click <strong style="color:var(--green);">Load Sample Projects</strong> to see an example with 4 real project types.</div>
+      </div>
+      <div id="cmpTable" style="display:none;">
+        <div class="cmp-hdr-row">
+          <span>Project</span><span style="text-align:center;">CEI</span><span style="text-align:center;">SVS</span><span style="text-align:center;">RRE</span><span>CAS Score</span><span style="text-align:center;">Level</span><span></span>
+        </div>
+        <div id="cmpRows"></div>
+        <div id="cmpWinner" class="cmp-winner" style="display:none;"></div>
+        <div class="card" style="margin-top:14px;">
+          <div class="card-hd"><span class="card-title">CAS Score Comparison Chart</span><span class="ctag tlive">Chart</span></div>
+          <div class="cmp-ch"><canvas id="chCmp"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /wrapper -->
+
+<!-- MODAL: DATA INPUT -->
+<div class="overlay" id="dataOv">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-title">Project Data Input</span><button class="xbtn" onclick="closeData()">×</button></div>
+    <div class="modal-body">
+      <div class="fg"><label>Project Name</label><input id="fName" value="Demo Project"></div>
+      <div class="fr">
+        <div class="fg"><label>Project Type</label>
+          <select id="fType">
+            <option value="startup">Startup / SaaS</option>
+            <option value="fintech">Fintech / Banking</option>
+            <option value="telecom">Telecom</option>
+            <option value="enterprise">Enterprise IT</option>
+            <option value="ecommerce">E-Commerce</option>
+            <option value="government">Government</option>
+          </select>
+        </div>
+        <div class="fg"><label>Team Size</label><input id="fTeam" type="number" value="12" min="1"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Cloud Provider</label>
+          <select id="fCloud">
+            <option value="aws">AWS</option>
+            <option value="azure">Azure</option>
+            <option value="gcp">GCP</option>
+            <option value="multi">Multi-Cloud</option>
+          </select>
+        </div>
+        <div class="fg"><label>Baseline</label>
+          <select id="fBase">
+            <option value="onprem">On-Premises</option>
+            <option value="hybrid">Hybrid Cloud</option>
+            <option value="cloud">Full Cloud</option>
+          </select>
+        </div>
+      </div>
+      <hr class="hdiv">
+      <div class="fg"><label>Monthly Cloud Costs — USD, comma-separated</label><textarea id="fCosts">12000, 13500, 11800, 15200, 13900, 14600</textarea><div class="hint">oldest → newest</div></div>
+      <div class="fg"><label>Monthly Workload Units</label><textarea id="fWork">950, 1100, 980, 1280, 1150, 1200</textarea><div class="hint">same period as costs</div></div>
+      <div class="fg"><label>Sprint Velocities (story points)</label><textarea id="fVel">42, 45, 38, 47, 44, 41, 46, 43</textarea><div class="hint">last 6–12 sprints</div></div>
+      <div class="fg"><label>Optimally Reallocated Resources (%)</label><input id="fRRE" type="number" value="78" min="0" max="100"><div class="hint">% of resources efficiently reallocated</div></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeData()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyData()">Apply & Calculate</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD PROJECT -->
+<div class="overlay" id="addProjOv">
+  <div class="modal modal-sm">
+    <div class="modal-hd"><span class="modal-title">Add Project to Compare</span><button class="xbtn" onclick="closeAddProj()">×</button></div>
+    <div class="modal-body">
+      <div class="fr">
+        <div class="fg"><label>Project Name</label><input id="cpName" value="Project A"></div>
+        <div class="fg"><label>Project Type</label>
+          <select id="cpType">
+            <option value="startup">Startup / SaaS</option>
+            <option value="fintech">Fintech</option>
+            <option value="telecom">Telecom</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Cloud</label>
+          <select id="cpCloud">
+            <option value="aws">AWS</option>
+            <option value="azure">Azure</option>
+            <option value="gcp">GCP</option>
+            <option value="multi">Multi-Cloud</option>
+          </select>
+        </div>
+        <div class="fg"><label>RRE % (reallocated)</label><input id="cpRRE" type="number" value="75" min="0" max="100"></div>
+      </div>
+      <div class="fg"><label>Monthly Costs (comma-sep)</label><textarea id="cpCosts" style="min-height:38px;">12000,14000,13500,15000,14200,16000</textarea></div>
+      <div class="fg"><label>Monthly Workload Units</label><textarea id="cpWork" style="min-height:38px;">900,1050,980,1200,1100,1300</textarea></div>
+      <div class="fg"><label>Sprint Velocities</label><textarea id="cpVel" style="min-height:38px;">40,43,41,46,44,48,45,47</textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeAddProj()">Cancel</button>
+      <button class="btn btn-primary" onclick="addProject()">Add to Comparison</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PDF -->
+<div class="overlay" id="pdfOv">
+  <div class="modal modal-sm">
+    <div class="modal-hd"><span class="modal-title">Export PDF Report</span><button class="xbtn" onclick="closePDF()">×</button></div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Choose the report format for your audience.</div>
+      <div class="pdf-grid">
+        <div class="pdf-opt sel" data-type="analytics" onclick="selPDF(this)">
+          <div class="pdf-opt-icon">📊</div>
+          <div class="pdf-opt-title">Analytics Report</div>
+          <div class="pdf-opt-desc">Full metrics, tables, charts, formulas</div>
+        </div>
+        <div class="pdf-opt" data-type="executive" onclick="selPDF(this)">
+          <div class="pdf-opt-icon">👔</div>
+          <div class="pdf-opt-title">Executive Summary</div>
+          <div class="pdf-opt-desc">Key insights for CTO / management</div>
+        </div>
+        <div class="pdf-opt" data-type="CAPM" onclick="selPDF(this)">
+          <div class="pdf-opt-icon">🎓</div>
+          <div class="pdf-opt-title">CAPM</div>
+          <div class="pdf-opt-desc">Academic style with methodology</div>
+        </div>
+      </div>
+      <div class="exp-prog" id="expProg"><div class="spin"></div><span id="expTxt">Generating PDF...</span></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closePDF()">Cancel</button>
+      <button class="btn btn-primary" onclick="generatePDF()">↓ Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: API KEY -->
+<div class="overlay" id="apiOv">
+  <div class="modal modal-sm">
+    <div class="modal-hd"><span class="modal-title">Connect AI Engine</span><button class="xbtn" onclick="closeApi()">×</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:18px;">Enter your Anthropic API key to enable AI-powered insights, maturity classification, and weight optimization. Stored in this session only.</p>
+      <div class="fg">
+        <label>Anthropic API Key</label>
+        <div style="position:relative;">
+          <input type="password" id="apiIn" placeholder="sk-ant-api03-..." style="padding-right:68px;">
+          <button onclick="toggleKey()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:11px;font-family:var(--fm);color:var(--text3);cursor:pointer;">show</button>
+        </div>
+        <div class="hint">Get yours at <a href="https://console.anthropic.com" target="_blank" style="color:var(--green);">console.anthropic.com</a> → API Keys</div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeApi()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveKey()">Connect</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+var S = {
+  key: sessionStorage.getItem('capm_key') || '',
+  w: { w1: 0.35, w2: 0.40, w3: 0.25 },
+  m: { ceiScore: null, ceiRaw: null, svs: null, rre: null, cas: null, lvl: null },
+  d: {
+    costs:  [12000,13500,11800,15200,13900,14600],
+    work:   [950,1100,980,1280,1150,1200],
+    vel:    [42,45,38,47,44,41,46,43],
+    rre:    78,
+    name:   'Demo Project',
+    type:   'startup',
+    team:   12,
+    cloud:  'aws'
+  },
+  projects: [],
+  insights: [],
+  pdfType:  'analytics'
+};
+
+var MAT = {
+  1: { name:'Static',     desc:'Infrastructure is fixed and manually managed. No auto-scaling; resources are provisioned upfront. Sprint velocity is inconsistent, planning overhead is high, and cloud costs are largely unpredictable.' },
+  2: { name:'Reactive',   desc:'Teams respond to issues after they occur. Basic cloud monitoring is in place but response is manual. Capacity adjustments happen after failures or budget overruns. Limited cost visibility.' },
+  3: { name:'Proactive',  desc:'Teams anticipate capacity needs ahead of time. Auto-scaling rules are configured. Sprint planning incorporates cloud cost budgets. Resource utilization is tracked and optimized. CI/CD pipelines in use.' },
+  4: { name:'Predictive', desc:'ML-driven forecasting for workload and cost. Cloud bursting is automated. Sprint velocity is highly stable (SVS > 0.80). Resource reallocation is dynamic. IaC practices are mature.' },
+  5: { name:'Autonomous', desc:'Fully autonomous cloud-agile operations. Self-healing infrastructure with zero-touch deployments. AI-driven sprint planning adapts in real time. CAS consistently above 0.85.' }
+};
+
+// ════════════════════════════════════════
+// MATH
+// ════════════════════════════════════════
+function parse(s) {
+  return s.split(',').map(function(x){ return parseFloat(x.trim()); }).filter(function(n){ return !isNaN(n); });
+}
+function mean(a) { return a.reduce(function(s,v){ return s+v; }, 0) / a.length; }
+function stddev(a) {
+  var m = mean(a);
+  return Math.sqrt(a.map(function(x){ return (x-m)*(x-m); }).reduce(function(s,v){ return s+v; }, 0) / a.length);
+}
+function calcCEI(costs, work) {
+  var pairs = [];
+  for (var i = 1; i < Math.min(costs.length, work.length); i++) {
+    var dc = Math.abs(costs[i]-costs[i-1]), dw = Math.abs(work[i]-work[i-1]);
+    if (dw > 0) pairs.push(dc/dw);
+  }
+  if (!pairs.length) return { score: 0.5, raw: 0 };
+  var raw = mean(pairs);
+  return { raw: +raw.toFixed(2), score: +Math.max(0, Math.min(1, 1-(raw-5)/30)).toFixed(4) };
+}
+function calcSVS(vel) {
+  if (vel.length < 2) return 0.5;
+  var m = mean(vel), s = stddev(vel);
+  return +Math.max(0, Math.min(1, 1-s/m)).toFixed(4);
+}
+function calcRRE(pct) { return +(pct/100).toFixed(4); }
+function calcCAS(cei, svs, rre, w1, w2, w3) {
+  var t = w1+w2+w3;
+  return +((w1/t)*cei + (w2/t)*svs + (w3/t)*rre).toFixed(4);
+}
+function autoLvl(cas, svs) {
+  if (cas >= 0.85) return 5;
+  if (cas >= 0.70 && svs >= 0.80) return 4;
+  if (cas >= 0.55 && svs >= 0.65) return 3;
+  if (cas >= 0.40) return 2;
+  return 1;
+}
+
+// ════════════════════════════════════════
+// RECALCULATE
+// ════════════════════════════════════════
+function recalc() {
+  var cei = calcCEI(S.d.costs, S.d.work);
+  var svs = calcSVS(S.d.vel);
+  var rre = calcRRE(S.d.rre);
+  var cas = calcCAS(cei.score, svs, rre, S.w.w1, S.w.w2, S.w.w3);
+  var lvl = autoLvl(cas, svs);
+  S.m = { ceiScore: cei.score, ceiRaw: cei.raw, svs: svs, rre: rre, cas: cas, lvl: lvl };
+  refreshKPI();
+  refreshCAS();
+  hlMat(lvl);
+  renderCharts();
+  document.getElementById('syncTxt').textContent = 'Last sync: ' + new Date().toLocaleTimeString();
+}
+
+// ════════════════════════════════════════
+// UI
+// ════════════════════════════════════════
+function refreshKPI() {
+  var m = S.m;
+  setK('vCEI','bCEI', m.ceiScore.toFixed(3), m.ceiScore>0.7?['bu','↑ Efficient']:m.ceiScore>0.5?['bn','~ Moderate']:['bd','↓ High drift']);
+  setK('vSVS','bSVS', m.svs.toFixed(3),      m.svs>0.8?['bu','↑ Stable']:m.svs>0.6?['bn','~ Variable']:['bd','↓ Unstable']);
+  setK('vRRE','bRRE', m.rre.toFixed(3),      m.rre>0.75?['bu','↑ Optimized']:m.rre>0.5?['bn','~ Partial']:['bd','↓ Inefficient']);
+  setK('vCAS','bCAS', m.cas.toFixed(3),      m.cas>0.75?['bu','↑ Synergized']:m.cas>0.55?['bn','~ Developing']:['bd','↓ Needs work']);
+  document.getElementById('vMAT').textContent = 'L'+m.lvl+' — '+MAT[m.lvl].name;
+}
+function setK(vi, bi, val, arr) {
+  document.getElementById(vi).textContent = val;
+  var b = document.getElementById(bi);
+  b.className = 'kpi-badge ' + arr[0];
+  b.textContent = arr[1];
+}
+function refreshCAS() {
+  var cas = S.m.cas, w = S.w;
+  var el = document.getElementById('casNum');
+  el.textContent = cas.toFixed(3);
+  var grades = [[0.85,'🏆 Autonomous-Ready','var(--green)'],[0.70,'✅ Predictive-Level','var(--blue)'],[0.55,'⚡ Proactive-Level','var(--amber)'],[0.40,'⚠️ Reactive-Level','#b45309'],[0,'🔴 Static-Level','var(--red)']];
+  var found = grades.find(function(g){ return cas >= g[0]; }) || grades[4];
+  document.getElementById('casGrade').textContent = found[1];
+  document.getElementById('casGrade').style.color = found[2];
+  el.style.color = found[2];
+  document.getElementById('casF').textContent = 'CAS = '+w.w1.toFixed(2)+'×CEI + '+w.w2.toFixed(2)+'×SVS + '+w.w3.toFixed(2)+'×RRE';
+}
+function hlMat(l) {
+  document.querySelectorAll('.ms').forEach(function(e){ e.classList.toggle('on', +e.dataset.l === l); });
+  document.getElementById('matDesc').textContent = MAT[l].desc;
+}
+function pickMat(l) { document.getElementById('matDesc').textContent = MAT[l].desc; }
+function wChg() {
+  S.w = { w1: +document.getElementById('w1').value, w2: +document.getElementById('w2').value, w3: +document.getElementById('w3').value };
+  ['w1','w2','w3'].forEach(function(k){ document.getElementById(k+'v').textContent = S.w[k].toFixed(2); });
+  if (S.m.cas !== null) {
+    S.m.cas = calcCAS(S.m.ceiScore, S.m.svs, S.m.rre, S.w.w1, S.w.w2, S.w.w3);
+    S.m.lvl = autoLvl(S.m.cas, S.m.svs);
+    refreshKPI(); refreshCAS(); hlMat(S.m.lvl);
+  }
+}
+
+// ════════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════════
+var c1 = null, c2 = null, cCmp = null;
+var LABS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color:'#8aab82', font:{ family:'DM Mono', size:10 }, boxWidth:10 } } },
+  scales: {
+    x: { grid:{ color:'#dde5d9' }, ticks:{ color:'#8aab82', font:{ family:'DM Mono', size:9 } } },
+    y: { grid:{ color:'#dde5d9' }, ticks:{ color:'#8aab82', font:{ family:'DM Mono', size:9 } } }
+  }
+};
+function renderCharts() {
+  var costs = S.d.costs, work = S.d.work, vel = S.d.vel, rre = S.d.rre;
+  var L = LABS.slice(0, costs.length);
+  if (c1) c1.destroy();
+  c1 = new Chart(document.getElementById('ch1').getContext('2d'), {
+    type: 'line',
+    data: { labels: L, datasets: [
+      { label:'Cloud Cost ($)', data:costs, borderColor:'#2d5a3d', backgroundColor:'rgba(45,90,61,.06)', tension:.4, fill:true, pointRadius:3, pointBackgroundColor:'#2d5a3d', yAxisID:'y' },
+      { label:'Sprint Velocity', data:vel.slice(0,costs.length), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.04)', tension:.4, fill:false, pointRadius:3, pointBackgroundColor:'#10b981', yAxisID:'y1' }
+    ]},
+    options: Object.assign({}, baseOpts, { scales: {
+      x: { grid:{color:'#dde5d9'}, ticks:{color:'#8aab82',font:{family:'DM Mono',size:9}} },
+      y: { position:'left', grid:{color:'#dde5d9'}, ticks:{color:'#2d5a3d',font:{family:'DM Mono',size:9}} },
+      y1: { position:'right', grid:{display:false}, ticks:{color:'#10b981',font:{family:'DM Mono',size:9}} }
+    }})
+  });
+  if (c2) c2.destroy();
+  var opt = work.map(function(w){ return Math.round(w*(rre/100)*0.09); });
+  var idle = work.map(function(w){ return Math.round(w*(1-rre/100)*0.09); });
+  c2 = new Chart(document.getElementById('ch2').getContext('2d'), {
+    type: 'bar',
+    data: { labels: LABS.slice(0,work.length), datasets: [
+      { label:'Optimal Resources', data:opt, backgroundColor:'rgba(45,90,61,.7)', borderRadius:4, stack:'s' },
+      { label:'Idle / Waste', data:idle, backgroundColor:'rgba(220,38,38,.35)', borderRadius:4, stack:'s' }
+    ]},
+    options: Object.assign({}, baseOpts, { scales: {
+      x: { grid:{color:'#dde5d9'}, ticks:{color:'#8aab82',font:{family:'DM Mono',size:9}}, stacked:true },
+      y: { grid:{color:'#dde5d9'}, ticks:{color:'#8aab82',font:{family:'DM Mono',size:9}}, stacked:true }
+    }})
+  });
+}
+
+// ════════════════════════════════════════
+// COMPARE
+// ════════════════════════════════════════
+function calcProjMetrics(costs, work, vel, rrePct) {
+  var cei = calcCEI(costs,work), svs = calcSVS(vel), rre = calcRRE(rrePct);
+  var cas = calcCAS(cei.score,svs,rre,0.35,0.40,0.25);
+  return { ceiScore:cei.score, svs:svs, rre:rre, cas:cas, lvl:autoLvl(cas,svs) };
+}
+function addProject() {
+  var name = document.getElementById('cpName').value||'Project';
+  var type = document.getElementById('cpType').value;
+  var cloud = document.getElementById('cpCloud').value;
+  var rrePct = +document.getElementById('cpRRE').value;
+  var costs = parse(document.getElementById('cpCosts').value);
+  var work = parse(document.getElementById('cpWork').value);
+  var vel = parse(document.getElementById('cpVel').value);
+  if (!costs.length||!work.length||!vel.length) { alert('Please fill in all data fields.'); return; }
+  var m = calcProjMetrics(costs,work,vel,rrePct);
+  S.projects.push(Object.assign({ name:name, type:type, cloud:cloud, id:Date.now() }, m));
+  closeAddProj();
+  renderComparison();
+}
+function removeProject(id) {
+  S.projects = S.projects.filter(function(p){ return p.id !== id; });
+  renderComparison();
+}
+function renderComparison() {
+  var empty = document.getElementById('cmpEmpty'), table = document.getElementById('cmpTable');
+  if (!S.projects.length) { empty.style.display='block'; table.style.display='none'; return; }
+  empty.style.display = 'none'; table.style.display = 'block';
+  var maxCAS = Math.max.apply(null, S.projects.map(function(p){ return p.cas; }));
+  var lvlColors = ['#8aab82','#d97706','#7c3aed','#2563eb','#10b981'];
+  document.getElementById('cmpRows').innerHTML = S.projects.map(function(p) {
+    var pct = (p.cas/maxCAS*100).toFixed(0);
+    var col = lvlColors[p.lvl-1]||'#8aab82';
+    return '<div class="cmp-row">'
+      +'<div><div class="cmp-nm">'+p.name+'</div><div class="cmp-sb">'+p.type+' · '+p.cloud+'</div></div>'
+      +'<div class="cmp-val" style="color:var(--green)">'+p.ceiScore.toFixed(3)+'</div>'
+      +'<div class="cmp-val" style="color:var(--mint)">'+p.svs.toFixed(3)+'</div>'
+      +'<div class="cmp-val" style="color:var(--amber)">'+p.rre.toFixed(3)+'</div>'
+      +'<div class="cmp-barwrap"><div class="cmp-bg"><div class="cmp-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
+      +'<span style="font-family:var(--fm);font-size:13px;font-weight:600;color:'+col+';white-space:nowrap;min-width:44px">'+p.cas.toFixed(3)+'</span></div>'
+      +'<div class="cmp-val" style="color:'+col+'">L'+p.lvl+' '+MAT[p.lvl].name+'</div>'
+      +'<button class="cmp-del" onclick="removeProject('+p.id+')">×</button>'
+      +'</div>';
+  }).join('');
+  var winner = S.projects.reduce(function(a,b){ return a.cas>b.cas?a:b; });
+  var cmpW = document.getElementById('cmpWinner');
+  cmpW.style.display = 'flex';
+  cmpW.innerHTML = '<span style="font-size:22px;">🏆</span><div style="font-size:13px;color:var(--text2);line-height:1.6;">'
+    +'<strong style="color:var(--green);">'+winner.name+'</strong> leads with CAS <strong>'+winner.cas.toFixed(3)+'</strong> — '+MAT[winner.lvl].name+' maturity.</div>';
+  if (cCmp) cCmp.destroy();
+  cCmp = new Chart(document.getElementById('chCmp').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: S.projects.map(function(p){ return p.name; }),
+      datasets: [
+        { label:'CEI', data:S.projects.map(function(p){ return p.ceiScore; }), backgroundColor:'rgba(45,90,61,.7)', borderRadius:4 },
+        { label:'SVS', data:S.projects.map(function(p){ return p.svs; }), backgroundColor:'rgba(16,185,129,.7)', borderRadius:4 },
+        { label:'RRE', data:S.projects.map(function(p){ return p.rre; }), backgroundColor:'rgba(217,119,6,.7)', borderRadius:4 },
+        { label:'CAS', data:S.projects.map(function(p){ return p.cas; }), backgroundColor:'rgba(37,99,235,.8)', borderRadius:4 }
+      ]
+    },
+    options: Object.assign({}, baseOpts, { scales: {
+      x: { grid:{color:'#dde5d9'}, ticks:{color:'#8aab82',font:{family:'DM Mono',size:10}} },
+      y: { grid:{color:'#dde5d9'}, ticks:{color:'#8aab82',font:{family:'DM Mono',size:9}}, max:1 }
+    }})
+  });
+}
+function loadSamples() {
+  S.projects = [
+    Object.assign({ id:1, name:'E-Commerce Migration', type:'ecommerce', cloud:'aws' }, calcProjMetrics([12000,13500,11800,15200,13900,14600],[950,1100,980,1280,1150,1200],[42,45,38,47,44,41,46,43],78)),
+    Object.assign({ id:2, name:'Fintech Platform', type:'fintech', cloud:'azure' }, calcProjMetrics([18000,17500,19000,18200,20000,19500],[1200,1180,1250,1220,1300,1280],[55,57,54,59,56,60,58,57],85)),
+    Object.assign({ id:3, name:'Gov Digital Services', type:'government', cloud:'gcp' }, calcProjMetrics([8000,9200,8500,10000,9300,9800],[600,700,650,780,720,760],[30,28,32,29,35,31,33,30],60)),
+    Object.assign({ id:4, name:'SaaS Startup', type:'startup', cloud:'multi' }, calcProjMetrics([5000,6500,5800,7200,6900,8100],[400,520,460,580,550,640],[38,42,36,44,41,46,43,45],72))
+  ];
+  renderComparison();
+}
+function openAddProj() { document.getElementById('addProjOv').classList.add('open'); }
+function closeAddProj() { document.getElementById('addProjOv').classList.remove('open'); }
+
+// ════════════════════════════════════════
+// PDF EXPORT
+// ════════════════════════════════════════
+function selPDF(el) {
+  document.querySelectorAll('.pdf-opt').forEach(function(e){ e.classList.remove('sel'); });
+  el.classList.add('sel');
+  S.pdfType = el.dataset.type;
+}
+function openPDF() {
+  if (S.m.cas === null) { alert('Please apply project data first.'); openData(); return; }
+  document.getElementById('pdfOv').classList.add('open');
+}
+function closePDF() {
+  document.getElementById('pdfOv').classList.remove('open');
+  document.getElementById('expProg').style.display = 'none';
+}
+
+function generatePDF() {
+  var prog = document.getElementById('expProg');
+  prog.style.display = 'flex';
+  document.getElementById('expTxt').textContent = 'Building professional report...';
+
+  setTimeout(function() {
+    try { buildPDF(); }
+    catch(e) { console.error('PDF error:', e); alert('PDF generation error: '+e.message); closePDF(); }
+  }, 300);
+}
+
+function buildPDF() {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  var W=210, H=297, M=16, cW=W-M*2;
+  var m = S.m, d = S.d, w = S.w;
+  var now = new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'});
+  var LABS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function G(r,g,b){ doc.setTextColor(r,g,b); }
+  function F(sz,st){ doc.setFontSize(sz); doc.setFont('helvetica',st||'normal'); }
+  function T(t,x,y,o){ doc.text(String(t),x,y,o||{}); }
+  function LN(x1,y1,x2,y2){ doc.setDrawColor(200,213,194); doc.setLineWidth(0.3); doc.line(x1,y1,x2,y2); }
+  function RCT(x,y,w2,h,r2,g2,b2){ doc.setFillColor(r2||238,g2||241,b2||236); doc.roundedRect(x,y,w2,h,1.5,1.5,'F'); }
+  function RCTSTROKE(x,y,w2,h,r2,g2,b2){ doc.setFillColor(r2||248,g2||252,b2||248); doc.setDrawColor(200,213,194); doc.setLineWidth(0.3); doc.roundedRect(x,y,w2,h,1.5,1.5,'FD'); }
+
+  // ── PAGE 1: COVER + METRICS TABLE ──
+  doc.setFillColor(45,90,61); doc.rect(0,0,W,56,'F');
+  F(8); G(200,230,200); T('CAPM — CLOUD-AGILE PERFORMANCE MONITOR',M,12);
+  F(22,'bold'); G(255,255,255); T('Performance Analytics',M,28);
+  F(22,'normal'); G(180,220,180); T('Report',M,38);
+  F(8,'normal'); G(160,210,160);
+  T(now,W-M,15,{align:'right'});
+  T(d.name,W-M,23,{align:'right'});
+  F(8,'bold'); G(120,190,140); T(d.type.toUpperCase()+' · '+d.cloud.toUpperCase()+' · TEAM: '+d.team,W-M,31,{align:'right'});
+  F(6,'normal'); G(140,200,160);
+  T('CAPM',M,48);
+  T('Cost-Effectiveness and Agile Methodologies — CAPM Platform',M,53);
+
+  var y = 66;
+
+  // Score gauges row
+  F(8,'bold'); G(45,90,61); T('CORE PERFORMANCE METRICS',M,y); LN(M,y+2,W-M,y+2); y += 8;
+  var gauges = [
+    [m.ceiScore,'CEI','Cost Elasticity',[45,90,61]],
+    [m.svs,'SVS','Velocity Stability',[16,185,129]],
+    [m.rre,'RRE','Resource Efficiency',[217,119,6]],
+    [m.cas,'CAS','Synergy Coeff.',[37,99,235]]
+  ];
+  var gW = cW/4;
+  gauges.forEach(function(g, i) {
+    var gx = M + i*gW + gW/2, gy = y+15;
+    var col = g[3];
+    doc.setFillColor(240,247,238); doc.circle(gx,gy,13,'F');
+    doc.setDrawColor(col[0],col[1],col[2]); doc.setLineWidth(1.5); doc.circle(gx,gy,13,'S');
+    F(11,'bold'); G(col[0],col[1],col[2]); T(g[0].toFixed(3),gx,gy+1.5,{align:'center'});
+    F(5,'normal'); G(138,171,130); T(g[2],gx,gy+6.5,{align:'center'});
+  });
+  // Maturity box
+  var mx = M + 4*gW + (cW-4*gW)/2;
+  RCTSTROKE(W-M-38, y+2, 38, 26);
+  F(7,'normal'); G(138,171,130); T('MATURITY',W-M-19,y+8,{align:'center'});
+  F(14,'bold'); G(45,90,61); T('L'+m.lvl,W-M-19,y+17,{align:'center'});
+  F(7,'bold'); G(45,90,61); T(MAT[m.lvl].name,W-M-19,y+23,{align:'center'});
+  y += 36;
+
+  // Metrics table
+  F(8,'bold'); G(45,90,61); T('METRIC DETAILS & BENCHMARKS',M,y); LN(M,y+2,W-M,y+2); y += 5;
+  doc.autoTable({
+    startY: y, margin:{left:M,right:M},
+    styles:{ font:'helvetica', fontSize:8, cellPadding:{top:3,bottom:3,left:4,right:4}, lineColor:[220,229,217], lineWidth:0.3, textColor:[26,38,24] },
+    headStyles:{ fillColor:[45,90,61], textColor:[255,255,255], fontStyle:'bold', fontSize:8 },
+    alternateRowStyles:{ fillColor:[248,252,248] },
+    head:[['Metric','Formula','Value','Score','Status','Target']],
+    body:[
+      ['Cost Elasticity Index (CEI)','CEI = ΔCost / ΔWorkload',m.ceiScore.toFixed(4),(m.ceiScore*100).toFixed(1)+'%',m.ceiScore>0.7?'✓ Efficient':'⚠ Review','>0.70'],
+      ['Sprint Velocity Stability (SVS)','SVS = 1 − σ/μ velocity',m.svs.toFixed(4),(m.svs*100).toFixed(1)+'%',m.svs>0.8?'✓ Stable':'⚠ Variable','>0.80'],
+      ['Resource Realloc. Efficiency (RRE)','RRE = Optimal / Total',m.rre.toFixed(4),(m.rre*100).toFixed(1)+'%',m.rre>0.75?'✓ Optimized':'⚠ Partial','>0.75'],
+      ['Cloud-Agile Synergy Coeff. (CAS)','CAS='+w.w1.toFixed(2)+'×CEI+'+w.w2.toFixed(2)+'×SVS+'+w.w3.toFixed(2)+'×RRE',m.cas.toFixed(4),(m.cas*100).toFixed(1)+'%',m.cas>=0.7?'✓ On Track':'⚠ Below target','>0.70']
+    ],
+    columnStyles:{0:{fontStyle:'bold',cellWidth:46},1:{cellWidth:52,textColor:[138,171,130],fontSize:7},2:{cellWidth:18,halign:'center',fontStyle:'bold'},3:{cellWidth:14,halign:'center'},4:{cellWidth:24,halign:'center'},5:{cellWidth:14,halign:'center',textColor:[138,171,130]}},
+    didParseCell: function(d2){
+      if (d2.column.index===4 && d2.section==='body'){
+        var v=d2.cell.raw;
+        if (v.indexOf('✓')>=0){d2.cell.styles.textColor=[6,95,70];d2.cell.styles.fillColor=[209,250,229];}
+        else{d2.cell.styles.textColor=[153,27,27];d2.cell.styles.fillColor=[254,226,226];}
+      }
+    }
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  // Score bars
+  F(8,'bold'); G(45,90,61); T('METRIC SCORE VISUALIZATION',M,y); LN(M,y+2,W-M,y+2); y += 7;
+  var bars = [['CEI — Cost Elasticity Index',m.ceiScore,[45,90,61]],['SVS — Sprint Velocity Stability',m.svs,[16,185,129]],['RRE — Resource Reallocation Efficiency',m.rre,[217,119,6]],['CAS — Cloud-Agile Synergy Coefficient',m.cas,[37,99,235]]];
+  bars.forEach(function(b) {
+    F(7.5,'normal'); G(74,96,69); T(b[0],M,y);
+    F(7.5,'bold'); G(b[2][0],b[2][1],b[2][2]); T(b[1].toFixed(3),W-M,y,{align:'right'});
+    RCT(M,y+2,cW,5,238,241,236);
+    doc.setFillColor(b[2][0],b[2][1],b[2][2]); doc.roundedRect(M,y+2,cW*b[1],5,1,1,'F');
+    doc.setDrawColor(255,255,255); doc.setLineWidth(0.5); doc.line(M+cW*0.7,y+1.5,M+cW*0.7,y+8);
+    F(5,'normal'); G(138,171,130); T('0.70',M+cW*0.71,y+6);
+    y += 12;
+  });
+
+  // ── PAGE 2: CHARTS + MATURITY ──
+  doc.addPage();
+  doc.setFillColor(45,90,61); doc.rect(0,0,W,12,'F');
+  F(8,'bold'); G(255,255,255); T('ANALYTICAL CHARTS & MATURITY MODEL',M,8);
+  F(7,'normal'); G(160,210,160); T(d.name,W-M,8,{align:'right'});
+  y = 20;
+
+  // Chart: Cost vs Velocity (line)
+  F(8,'bold'); G(45,90,61); T('CLOUD COST vs SPRINT VELOCITY',M,y); LN(M,y+2,cW/2+M,y+2);
+  var cData = d.costs.slice(0,8), vData = d.vel.slice(0,8);
+  var chX=M, chY=y+8, chW=cW/2-4, chH=44;
+  RCT(chX,chY,chW,chH,250,253,250);
+  // grid
+  doc.setDrawColor(220,229,217); doc.setLineWidth(0.2);
+  for (var gi=0;gi<=4;gi++){ var gly=chY+chH-(gi/4)*chH; doc.line(chX,gly,chX+chW,gly); }
+  var cMax=Math.max.apply(null,cData)||1, vMax=Math.max.apply(null,vData)||1;
+  // cost line
+  doc.setDrawColor(45,90,61); doc.setLineWidth(0.8);
+  for (var ci=1;ci<cData.length;ci++){
+    doc.line(chX+(ci-1)*chW/(cData.length-1), chY+chH-(cData[ci-1]/cMax)*chH, chX+ci*chW/(cData.length-1), chY+chH-(cData[ci]/cMax)*chH);
+  }
+  // velocity line
+  doc.setDrawColor(16,185,129); doc.setLineWidth(0.8);
+  for (var vi=1;vi<vData.length;vi++){
+    doc.line(chX+(vi-1)*chW/(vData.length-1), chY+chH-(vData[vi-1]/vMax)*chH, chX+vi*chW/(vData.length-1), chY+chH-(vData[vi]/vMax)*chH);
+  }
+  cData.forEach(function(v,i){
+    var px=chX+i*chW/(cData.length-1), py=chY+chH-(v/cMax)*chH;
+    doc.setFillColor(45,90,61); doc.circle(px,py,1,'F');
+    F(4.5,'normal'); G(138,171,130); T(LABS[i]||'',px,chY+chH+3.5,{align:'center'});
+  });
+  vData.forEach(function(v,i){
+    var px=chX+i*chW/(vData.length-1), py=chY+chH-(v/vMax)*chH;
+    doc.setFillColor(16,185,129); doc.circle(px,py,1,'F');
+  });
+  doc.setFillColor(45,90,61); doc.rect(chX,chY+chH+6,3,2,'F'); F(5.5,'normal'); G(74,96,69); T('Cloud Cost ($)',chX+5,chY+chH+7.5);
+  doc.setFillColor(16,185,129); doc.rect(chX+40,chY+chH+6,3,2,'F'); T('Sprint Velocity',chX+45,chY+chH+7.5);
+
+  // Chart: Resource allocation (right side)
+  var ch2X=M+cW/2+4, ch2Y=y+8, ch2W=cW/2-4, ch2H=44;
+  F(8,'bold'); G(45,90,61); T('RESOURCE ALLOCATION EFFICIENCY',M+cW/2+8,y); LN(M+cW/2+8,y+2,W-M,y+2);
+  RCT(ch2X,ch2Y,ch2W,ch2H,250,253,250);
+  var wData=d.work.slice(0,6), rre2=d.rre;
+  var wMax=Math.max.apply(null,wData)*1.1||1;
+  var bw2=ch2W/wData.length*0.65, gap=(ch2W/wData.length*0.35)/2;
+  wData.forEach(function(wv,i){
+    var optH=(wv*(rre2/100)/wMax)*ch2H, idleH=(wv*(1-rre2/100)/wMax)*ch2H;
+    var bx=ch2X+i*(ch2W/wData.length)+gap;
+    doc.setFillColor(252,200,200); doc.roundedRect(bx,ch2Y+ch2H-optH-idleH,bw2,idleH,0.5,0.5,'F');
+    doc.setFillColor(45,90,61); doc.roundedRect(bx,ch2Y+ch2H-optH,bw2,optH,0.5,0.5,'F');
+    F(4.5,'normal'); G(138,171,130); T(LABS[i]||'',bx+bw2/2,ch2Y+ch2H+3.5,{align:'center'});
+  });
+  doc.setFillColor(45,90,61); doc.rect(ch2X,ch2Y+ch2H+6,3,2,'F'); F(5.5,'normal'); G(74,96,69); T('Optimal',ch2X+5,ch2Y+ch2H+7.5);
+  doc.setFillColor(252,200,200); doc.rect(ch2X+28,ch2Y+ch2H+6,3,2,'F'); T('Idle / Waste',ch2X+33,ch2Y+ch2H+7.5);
+  y = chY + chH + 20;
+
+  // Maturity model visual
+  F(8,'bold'); G(45,90,61); T('ELASTIC AGILE MATURITY MODEL',M,y); LN(M,y+2,W-M,y+2); y += 8;
+  var matW3=cW/5;
+  [1,2,3,4,5].forEach(function(l,i){
+    var isActive=l===m.lvl, isPast=l<m.lvl;
+    var mx3=M+i*matW3;
+    if (isActive){ doc.setFillColor(45,90,61); doc.roundedRect(mx3,y,matW3-3,28,2,2,'F'); }
+    else if (isPast){ doc.setFillColor(209,250,229); doc.roundedRect(mx3,y,matW3-3,28,2,2,'F'); }
+    else RCT(mx3,y,matW3-3,28,238,241,236);
+    F(7,'bold'); isActive?G(255,255,255):isPast?G(6,95,70):G(138,171,130); T('Level '+l,mx3+2,y+7);
+    F(8,isActive?'bold':'normal'); isActive?G(255,255,255):isPast?G(45,90,61):G(100,130,100); T(MAT[l].name,mx3+2,y+14);
+    if (isActive){ F(5.5,'bold'); G(200,230,200); T('CURRENT',mx3+(matW3-3)/2,y+22,{align:'center'}); }
+    else if (isPast){ F(5,'normal'); G(6,95,70); T('✓',mx3+(matW3-3)/2,y+22,{align:'center'}); }
+  });
+  y += 34;
+  RCTSTROKE(M,y,cW,18,240,247,238);
+  F(7.5,'bold'); G(45,90,61); T('Level '+m.lvl+' — '+MAT[m.lvl].name+':',M+4,y+6);
+  F(7,'normal'); G(74,96,69);
+  var mdl=doc.splitTextToSize(MAT[m.lvl].desc,cW-8); doc.text(mdl,M+4,y+12);
+  y += 24;
+
+  // ── PAGE 3: FORMULAS + DATA + INSIGHTS ──
+  doc.addPage();
+  doc.setFillColor(45,90,61); doc.rect(0,0,W,12,'F');
+  F(8,'bold'); G(255,255,255); T('MATHEMATICAL FRAMEWORK & DATA SUMMARY',M,8);
+  F(7,'normal'); G(160,210,160); T(d.name,W-M,8,{align:'right'});
+  y = 20;
+
+  F(8,'bold'); G(45,90,61); T('MATHEMATICAL FORMULAS',M,y); LN(M,y+2,W-M,y+2); y += 5;
+  doc.autoTable({
+    startY:y, margin:{left:M,right:M},
+    styles:{font:'helvetica',fontSize:7.5,cellPadding:{top:3.5,bottom:3.5,left:4,right:4},lineColor:[220,229,217],lineWidth:0.3,textColor:[26,38,24]},
+    headStyles:{fillColor:[45,90,61],textColor:[255,255,255],fontStyle:'bold',fontSize:7.5},
+    alternateRowStyles:{fillColor:[248,252,248]},
+    head:[['Metric','Formula','Mathematical Definition','Result']],
+    body:[
+      ['Cost Elasticity Index','CEI = ΔCost / ΔWorkload','Ratio of marginal cost change to marginal workload change. Normalized: max(0, min(1, 1-(raw-5)/30))',m.ceiScore.toFixed(4)],
+      ['Sprint Velocity Stability','SVS = 1 − σv / μv','1 minus coefficient of variation. σv = std deviation of sprint velocities, μv = mean velocity.',m.svs.toFixed(4)],
+      ['Resource Realloc. Efficiency','RRE = Opt. / Total','Fraction of total cloud resources optimally reallocated during measurement period.',m.rre.toFixed(4)],
+      ['Cloud-Agile Synergy Coeff.','CAS = w₁(CEI)+w₂(SVS)+w₃(RRE)','Composite metric. Weights: w₁='+w.w1.toFixed(2)+', w₂='+w.w2.toFixed(2)+', w₃='+w.w3.toFixed(2)+' (normalized to 1.0)',m.cas.toFixed(4)]
+    ],
+    columnStyles:{0:{fontStyle:'bold',cellWidth:42},1:{cellWidth:46,textColor:[45,90,61],fontStyle:'bold',fontSize:7},2:{cellWidth:70,textColor:[74,96,69],fontSize:6.5},3:{cellWidth:16,halign:'center',fontStyle:'bold',textColor:[45,90,61]}}
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  F(8,'bold'); G(45,90,61); T('INPUT DATA SUMMARY',M,y); LN(M,y+2,W-M,y+2); y += 5;
+  var mCosts=Math.round(d.costs.reduce(function(a,b){return a+b;},0)/d.costs.length);
+  var sCosts=Math.round(stddev(d.costs));
+  var mVel=(d.vel.reduce(function(a,b){return a+b;},0)/d.vel.length).toFixed(1);
+  var sVel=stddev(d.vel).toFixed(1);
+  var mWork=Math.round(d.work.reduce(function(a,b){return a+b;},0)/d.work.length);
+  doc.autoTable({
+    startY:y, margin:{left:M,right:M},
+    styles:{font:'helvetica',fontSize:7.5,cellPadding:{top:3,bottom:3,left:4,right:4},lineColor:[220,229,217],lineWidth:0.3},
+    headStyles:{fillColor:[61,122,82],textColor:[255,255,255],fontStyle:'bold',fontSize:7.5},
+    alternateRowStyles:{fillColor:[248,252,248]},
+    head:[['Parameter','Sample Data','Count','Mean','Std Dev']],
+    body:[
+      ['Monthly Cloud Costs ($)',d.costs.slice(0,6).join(', ')+'...',d.costs.length,'$'+mCosts.toLocaleString(),'±$'+sCosts.toLocaleString()],
+      ['Sprint Velocity (story pts)',d.vel.slice(0,6).join(', ')+'...',d.vel.length,mVel+' pts','±'+sVel],
+      ['Workload Units / Month',d.work.slice(0,6).join(', ')+'...',d.work.length,mWork+' units','—'],
+      ['RRE Optimal %',d.rre+'% of total resources',1,'—','—']
+    ],
+    columnStyles:{0:{fontStyle:'bold',cellWidth:42},1:{cellWidth:68,fontSize:6.5,textColor:[74,96,69]},2:{cellWidth:14,halign:'center'},3:{cellWidth:24,halign:'center',fontStyle:'bold'},4:{cellWidth:26,halign:'center'}}
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  if (S.insights.length) {
+    F(8,'bold'); G(45,90,61); T('AI-GENERATED INSIGHTS',M,y); LN(M,y+2,W-M,y+2); y += 5;
+    var icoMap = {warn:'⚠',good:'✓',info:'i',alert:'!'};
+    var colMap = {warn:[254,243,199,146,64,14],good:[209,250,229,6,95,70],info:[219,234,254,30,64,175],alert:[254,226,226,153,27,27]};
+    doc.autoTable({
+      startY:y, margin:{left:M,right:M},
+      styles:{font:'helvetica',fontSize:7.5,cellPadding:{top:4,bottom:4,left:4,right:4},lineColor:[220,229,217],lineWidth:0.3,textColor:[26,38,24]},
+      headStyles:{fillColor:[45,90,61],textColor:[255,255,255],fontStyle:'bold',fontSize:7.5},
+      head:[['','Finding','Detail']],
+      body: S.insights.map(function(ins){ return [icoMap[ins.type]||'•', ins.title, ins.text]; }),
+      columnStyles:{0:{cellWidth:8,halign:'center',fontStyle:'bold'},1:{cellWidth:52,fontStyle:'bold'},2:{cellWidth:cW-60}},
+      didParseCell: function(d2){
+        if (d2.section==='body' && d2.column.index===0){
+          var t = S.insights[d2.row.index] && S.insights[d2.row.index].type || 'info';
+          var c = colMap[t]||colMap.info;
+          d2.cell.styles.fillColor=[c[0],c[1],c[2]]; d2.cell.styles.textColor=[c[3],c[4],c[5]];
+        }
+      }
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
+
+  // Conclusions
+  if (y < 262) {
+    RCTSTROKE(M,y,cW,22,240,247,238);
+    F(8,'bold'); G(45,90,61); T('CONCLUSIONS',M+4,y+7);
+    F(7.5,'normal'); G(74,96,69);
+    var conc = d.name+' achieves CAS '+m.cas.toFixed(3)+' — '+MAT[m.lvl].name+' maturity (L'+m.lvl+'/5). ';
+    conc += m.cas>=0.7 ? 'Performance meets the benchmark threshold (>0.70).' : 'Below benchmark (0.70) — recommend optimizing cloud scaling and sprint planning.';
+    var cl = doc.splitTextToSize(conc, cW-8); doc.text(cl,M+4,y+13);
+  }
+
+  // Footer on all pages
+  var pCount = doc.internal.getNumberOfPages();
+  for (var pi=1;pi<=pCount;pi++){
+    doc.setPage(pi);
+    doc.setFillColor(238,241,236); doc.rect(0,H-10,W,10,'F');
+    doc.setDrawColor(200,213,194); doc.setLineWidth(0.3); doc.line(0,H-10,W,H-10);
+    F(6.5,'normal'); G(138,171,130);
+    T('CAPM — Cloud-Agile Performance Monitor  ·  capm.io',M,H-4);
+    T('Page '+pi+' / '+pCount,W-M,H-4,{align:'right'});
+  }
+
+  var fname = 'CAPM_'+S.pdfType+'_'+d.name.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
+  document.getElementById('expTxt').textContent = 'Done! Saving...';
+  setTimeout(function(){ doc.save(fname); setTimeout(closePDF, 600); }, 200);
+}
+
+// ════════════════════════════════════════
+// CLAUDE AI
+// ════════════════════════════════════════
+var SYS = 'You are a cloud-agile performance analyst for CAPM — the CAPM platform. Metrics: CEI, SVS, RRE, CAS. Maturity: L1 Static, L2 Reactive, L3 Proactive, L4 Predictive, L5 Autonomous. Be precise, cite actual numbers. Return valid JSON only.';
+
+function callAI(prompt, cb) {
+  if (!S.key) { openApi(); return; }
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'x-api-key':S.key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:SYS, messages:[{role:'user',content:prompt}] })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){ if (d.error) throw new Error(d.error.message); cb(null, d.content[0].text); })
+  .catch(function(e){ cb(e, null); });
+}
+
+function genInsights() {
+  var m = S.m, d = S.d;
+  var ct = d.costs[d.costs.length-1]>d.costs[0]?'increasing':'decreasing';
+  var vt = d.vel[d.vel.length-1]>d.vel[0]?'improving':'declining';
+  var p = 'Analyze metrics, return exactly 3 insights as JSON array.\nContext: type='+d.type+', team='+d.team+', cloud='+d.cloud+'\nCEI='+m.ceiScore.toFixed(3)+'(raw='+m.ceiRaw+'), SVS='+m.svs.toFixed(3)+', RRE='+m.rre.toFixed(3)+', CAS='+m.cas.toFixed(3)+', Level=L'+m.lvl+'\nCost trend:'+ct+'. Velocity trend:'+vt+'.\nReturn ONLY: [{"type":"warn|good|info|alert","title":"short","text":"2-3 sentences with numbers"},...]';
+  setLoading();
+  callAI(p, function(err, raw) {
+    if (err || !raw) { setErr(); return; }
+    try { var items=JSON.parse(raw.replace(/```json|```/g,'').trim()); S.insights=items; showInsights(items); }
+    catch(e) { setErr(); }
+  });
+}
+
+function classifyAI() {
+  var m = S.m, d = S.d;
+  var p = 'Classify Elastic Agile Maturity. CEI='+m.ceiScore.toFixed(3)+',SVS='+m.svs.toFixed(3)+',RRE='+m.rre.toFixed(3)+',CAS='+m.cas.toFixed(3)+', context:'+d.type+','+d.team+'people,'+d.cloud+'.\nReturn ONLY: {"level":1-5,"confidence":0-1,"reasoning":"2 sentences","nextStep":"1 action"}';
+  callAI(p, function(err, raw) {
+    if (err || !raw) return;
+    try {
+      var r = JSON.parse(raw.replace(/```json|```/g,'').trim());
+      hlMat(r.level); S.m.lvl=r.level; refreshKPI();
+      var el=document.getElementById('matAI'); el.style.display='flex';
+      document.getElementById('matAItxt').textContent='L'+r.level+' · '+(r.confidence*100).toFixed(0)+'% confidence — Next: '+r.nextStep;
+      document.getElementById('matDesc').textContent=MAT[r.level].desc+'\n\nAI reasoning: '+r.reasoning;
+    } catch(e) {}
+  });
+}
+
+function aiWeights() {
+  if (!S.m.cas) { alert('Apply data first.'); return; }
+  var btn=document.getElementById('optBtn'); btn.textContent='⏳ Optimizing...'; btn.disabled=true;
+  var m=S.m, d=S.d;
+  var p='Recommend CAS weights. w1+w2+w3 must equal exactly 1.0. Context:'+d.type+','+d.team+','+d.cloud+'. CEI='+m.ceiScore.toFixed(3)+',SVS='+m.svs.toFixed(3)+',RRE='+m.rre.toFixed(3)+'.\nReturn ONLY: {"w1":0-1,"w2":0-1,"w3":0-1,"reasoning":"2 sentences"}';
+  callAI(p, function(err, raw) {
+    btn.textContent='⚡ AI Optimize Weights'; btn.disabled=false;
+    if (err || !raw) return;
+    try {
+      var r=JSON.parse(raw.replace(/```json|```/g,'').trim());
+      S.w={w1:r.w1,w2:r.w2,w3:r.w3};
+      ['w1','w2','w3'].forEach(function(k){ document.getElementById(k).value=S.w[k]; document.getElementById(k+'v').textContent=S.w[k].toFixed(2); });
+      S.m.cas=calcCAS(S.m.ceiScore,S.m.svs,S.m.rre,S.w.w1,S.w.w2,S.w.w3);
+      refreshKPI(); refreshCAS();
+      var n=document.getElementById('wNote'); n.style.display='block'; n.innerHTML='<strong style="color:var(--green)">AI:</strong> '+r.reasoning;
+    } catch(e) {}
+  });
+}
+
+function runAI() {
+  if (S.m.cas===null) { alert('Input data first.'); openData(); return; }
+  genInsights();
+  classifyAI();
+}
+
+var ICONS = {warn:'⚠️',good:'✅',info:'💡',alert:'🔴'};
+function setLoading() {
+  document.getElementById('insPH').innerHTML='<div class="spin"></div>AI analyzing your metrics...';
+  document.getElementById('insPH').style.display='block';
+  document.getElementById('insList').style.display='none';
+}
+function setErr() { document.getElementById('insPH').innerHTML='<span style="color:var(--red)">⚠️ Could not reach AI. Check your API key.</span>'; }
+function showInsights(items) {
+  document.getElementById('insPH').style.display='none';
+  var l=document.getElementById('insList'); l.style.display='flex';
+  l.innerHTML=items.map(function(i){ return '<div class="ins-item"><div class="ins-ico">'+(ICONS[i.type]||'💡')+'</div><div><div class="ins-title">'+i.title+'</div><div class="ins-txt">'+i.text+'</div></div></div>'; }).join('');
+}
+
+// ════════════════════════════════════════
+// TABS + MODALS
+// ════════════════════════════════════════
+function showTab(name, el) {
+  document.getElementById('tab-overview').style.display = name==='overview'?'block':'none';
+  document.getElementById('tab-compare').style.display = name==='compare'?'block':'none';
+  document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('on'); });
+  el.classList.add('on');
+}
+function openData(){ document.getElementById('dataOv').classList.add('open'); }
+function closeData(){ document.getElementById('dataOv').classList.remove('open'); }
+function openApi(){ document.getElementById('apiOv').classList.add('open'); }
+function closeApi(){ document.getElementById('apiOv').classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(function(o){
+  o.addEventListener('click', function(e){ if(e.target===o) o.classList.remove('open'); });
+});
+function applyData() {
+  S.d = {
+    costs: parse(document.getElementById('fCosts').value),
+    work:  parse(document.getElementById('fWork').value),
+    vel:   parse(document.getElementById('fVel').value),
+    rre:   +document.getElementById('fRRE').value,
+    name:  document.getElementById('fName').value||'My Project',
+    type:  document.getElementById('fType').value,
+    team:  +document.getElementById('fTeam').value,
+    cloud: document.getElementById('fCloud').value
+  };
+  document.getElementById('projPill').textContent = S.d.name;
+  closeData();
+  recalc();
+  setTimeout(saveToBackend, 800);
+}
+function saveKey() {
+  var k=document.getElementById('apiIn').value.trim();
+  if (!k) return;
+  S.key=k; sessionStorage.setItem('capm_key',k); closeApi();
+  document.getElementById('apiDot').classList.add('on');
+  document.getElementById('apiTxt').textContent='AI Engine Ready';
+}
+function toggleKey() {
+  var i=document.getElementById('apiIn'), b=event.currentTarget;
+  i.type=i.type==='password'?'text':'password';
+  b.textContent=i.type==='password'?'show':'hide';
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function() {
+  if (S.key) {
+    document.getElementById('apiDot').classList.add('on');
+    document.getElementById('apiTxt').textContent='AI Engine Ready';
+    document.getElementById('apiIn').value=S.key;
+  }
+  initAuth();
+  recalc();
+});
+
+
+// ════════════════════════════════════════
+// BACKEND INTEGRATION
+// ════════════════════════════════════════
+var API = 'http://localhost:8000';
+var TOKEN = sessionStorage.getItem('capm_token') || '';
+var USER  = JSON.parse(sessionStorage.getItem('capm_user') || 'null');
+var DEMO  = !!sessionStorage.getItem('capm_demo');
+
+function apiHeaders() {
+  var h = {'Content-Type': 'application/json'};
+  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
+  return h;
+}
+
+function initAuth() {
+  // If no token and no demo mode — redirect to login
+  if (!TOKEN && !DEMO) {
+    window.location.href = 'login.html';
+    return;
+  }
+  if (DEMO) {
+    document.getElementById('demoBanner').style.display = 'flex';
+    document.getElementById('userBar').style.display = 'flex';
+    document.getElementById('userName').textContent = 'Demo User';
+    document.getElementById('userRole').textContent = 'demo mode';
+    document.getElementById('userAv').textContent = 'D';
+    return;
+  }
+  if (USER) {
+    showUserBar(USER);
+    loadUserProjects();
+  }
+}
+
+function showUserBar(user) {
+  var bar = document.getElementById('userBar');
+  bar.style.display = 'flex';
+  document.getElementById('userName').textContent = user.name || user.email;
+  document.getElementById('userRole').textContent = user.company || 'member';
+  document.getElementById('userAv').textContent   = (user.name||user.email||'U')[0].toUpperCase();
+}
+
+function logout(e) {
+  if (e) e.stopPropagation();
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+function toggleUserMenu() { /* future: show dropdown */ }
+
+// ── Save current project to backend ──
+function saveToBackend() {
+  if (DEMO || !TOKEN || S.m.cas === null) return;
+  // Try to get or create project
+  fetch(API+'/projects', { headers: apiHeaders() })
+  .then(function(r){ return r.json(); })
+  .then(function(projects) {
+    var existing = projects.find(function(p){ return p.name === S.d.name; });
+    if (existing) {
+      return saveMetrics(existing.id);
+    } else {
+      return fetch(API+'/projects', {
+        method: 'POST', headers: apiHeaders(),
+        body: JSON.stringify({ name:S.d.name, type:S.d.type, cloud:S.d.cloud, team_size:S.d.team, baseline:'onprem' })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(proj){ return saveMetrics(proj.id); });
+    }
+  })
+  .catch(function(e){ console.warn('Backend not available, running in local mode'); });
+}
+
+function saveMetrics(pid) {
+  return fetch(API+'/projects/'+pid+'/metrics', {
+    method: 'POST', headers: apiHeaders(),
+    body: JSON.stringify({
+      period: new Date().toISOString().slice(0,7),
+      costs: S.d.costs, workload: S.d.work,
+      velocities: S.d.vel, rre_pct: S.d.rre,
+      w1: S.w.w1, w2: S.w.w2, w3: S.w.w3,
+      ai_insights: S.insights.length ? JSON.stringify(S.insights) : null
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function() {
+    var ind = document.getElementById('saveInd');
+    ind.classList.add('show');
+    setTimeout(function(){ ind.classList.remove('show'); }, 2500);
+  });
+}
+
+// ── Load projects for compare module ──
+function loadUserProjects() {
+  if (DEMO || !TOKEN) return;
+  fetch(API+'/projects', { headers: apiHeaders() })
+  .then(function(r){ return r.json(); })
+  .then(function(projects) {
+    if (!projects.length) return;
+    // Pre-populate compare module with saved projects that have metrics
+    var withMetrics = projects.filter(function(p){ return p.latest_cas; });
+    if (withMetrics.length >= 2) {
+      S.projects = withMetrics.map(function(p, i) {
+        return {
+          id: p.id + Date.now() + i,
+          name: p.name, type: p.type, cloud: p.cloud,
+          ceiScore: 0.7, svs: 0.75, rre: 0.78,
+          cas: p.latest_cas || 0.7,
+          lvl: p.latest_maturity || 3
+        };
+      });
+    }
+  })
+  .catch(function(){ /* backend offline, that's ok */ });
+}
+</script>
+</body>
+</html>

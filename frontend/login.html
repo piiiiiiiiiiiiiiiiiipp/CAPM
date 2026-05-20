@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPM — Log in</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Montserrat:wght@300;400;500;660&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f7f4; --surface:#fff; --bg3:#eef1ec;
+  --border:#dde5d9; --border2:#c8d5c2;
+  --text:#1a2618; --text2:#4a6045; --text3:#8aab82;
+  --green:#2d5a3d; --green2:#3d7a52;
+  --red:#dc2626;
+  --sh:0 4px 24px rgba(45,90,61,.10);
+  --f:'Montserrat',sans-serif; --fs:'Montserrat', sans-serif ; --fm:'Montserrat',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:var(--f);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.wrap{width:100%;max-width:420px;}
+.logo{text-align:center;margin-bottom:32px;}
+.logo-mark{font-size:10px;font-family:var(--fm);color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.logo-name{font-family:var(--fs);font-size:24px;font-weight:666;color:var(--text);font-style:normal;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;box-shadow:var(--sh);}
+.tabs{display:flex;background:var(--bg3);border-radius:10px;padding:4px;gap:4px;margin-bottom:28px;}
+.tab{flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text3);transition:all .18s;border:none;background:transparent;font-family:var(--f);}
+.tab.on{background:var(--green);color:#fff;}
+.fg{margin-bottom:16px;}
+label{display:block;font-size:10px;font-family:var(--fm);color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;color:var(--text);font-family:var(--f);font-size:14px;outline:none;transition:all .15s;}
+input:focus{border-color:var(--green);background:#fff;}
+.btn{width:100%;padding:13px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .18s;font-family:var(--f);border:none;background:var(--green);color:#fff;margin-top:6px;}
+.btn:hover{background:var(--green2);transform:translateY(-1px);}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.err{font-size:12px;color:var(--red);margin-top:10px;text-align:center;min-height:18px;}
+.ok{font-size:12px;color:var(--green);margin-top:10px;text-align:center;}
+.divider{text-align:center;font-size:12px;color:var(--text3);margin:20px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border);}
+.divider::before{left:0;}.divider::after{right:0;}
+.demo-btn{width:100%;padding:11px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:var(--bg3);color:var(--text2);border:1px solid var(--border2);font-family:var(--f);transition:all .18s;}
+.demo-btn:hover{border-color:var(--green);color:var(--green);}
+.footer-note{text-align:center;font-size:11px;font-family:var(--fm);color:var(--text3);margin-top:20px;line-height:1.7;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-mark">CAPM</div>
+    <div class="logo-name">Cloud-Agile Monitor</div>
+  </div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('login',this)">Sign In</button>
+      <button class="tab" onclick="switchTab('register',this)">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="lEmail" placeholder="you@company.com" autocomplete="email">
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <input type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn" id="loginBtn" onclick="doLogin()">Sign In →</button>
+      <div class="err" id="loginErr"></div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none;">
+      <div class="fg">
+        <label>Full Name</label>
+        <input type="text" id="rName" placeholder="Elnara Khanafiyeva">
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="rEmail" placeholder="you@company.com">
+      </div>
+      <div class="fg">
+        <label>Company (optional)</label>
+        <input type="text" id="rCompany" placeholder="Acme Corp">
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <input type="password" id="rPass" placeholder="8+ characters">
+      </div>
+      <button class="btn" id="registerBtn" onclick="doRegister()">Create Account →</button>
+      <div class="err" id="registerErr"></div>
+    </div>
+
+    <div class="divider">or</div>
+    <button class="demo-btn" onclick="demoMode()">Continue without account (demo mode)</button>
+  </div>
+  <div class="footer-note" style="text-align:center;font-size:11px;font-weight:500;color:var(--text3);margin-top:20px;">
+    Cloud-Agile Performance Monitor
+  </div>
+</div>
+
+<script>
+var API = 'http://localhost:8000';
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  el.classList.add('on');
+  document.getElementById('loginForm').style.display    = tab==='login'    ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab==='register' ? 'block' : 'none';
+}
+
+function setLoading(btnId, loading) {
+  var btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  if (loading) btn.innerHTML = '<span class="spin"></span>Please wait...';
+  else btn.textContent = btnId==='loginBtn' ? 'Sign In →' : 'Create Account →';
+}
+
+function doLogin() {
+  var email = document.getElementById('lEmail').value.trim();
+  var pass  = document.getElementById('lPass').value;
+  var errEl = document.getElementById('loginErr');
+  errEl.textContent = '';
+  if (!email || !pass) { errEl.textContent = 'Please fill in all fields.'; return; }
+  setLoading('loginBtn', true);
+  fetch(API+'/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({email:email, password:pass})
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+  .then(function(res) {
+    setLoading('loginBtn', false);
+    if (!res.ok) { errEl.textContent = res.d.detail || 'Login failed.'; return; }
+    sessionStorage.setItem('capm_token', res.d.token);
+    sessionStorage.setItem('capm_user', JSON.stringify(res.d.user));
+    window.location.href = 'dashboard.html';
+  })
+  .catch(function() {
+    setLoading('loginBtn', false);
+    errEl.textContent = 'Cannot connect to server. Make sure the backend is running on port 8000.';
+  });
+}
+
+function doRegister() {
+  var name    = document.getElementById('rName').value.trim();
+  var email   = document.getElementById('rEmail').value.trim();
+  var company = document.getElementById('rCompany').value.trim();
+  var pass    = document.getElementById('rPass').value;
+  var errEl   = document.getElementById('registerErr');
+  errEl.textContent = '';
+  if (!name || !email || !pass) { errEl.textContent = 'Name, email and password are required.'; return; }
+  if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+  setLoading('registerBtn', true);
+  fetch(API+'/auth/register', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({email:email, name:name, password:pass, company:company||null})
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+  .then(function(res) {
+    setLoading('registerBtn', false);
+    if (!res.ok) { errEl.textContent = res.d.detail || 'Registration failed.'; return; }
+    sessionStorage.setItem('capm_token', res.d.token);
+    sessionStorage.setItem('capm_user', JSON.stringify(res.d.user));
+    window.location.href = 'dashboard.html';
+  })
+  .catch(function() {
+    setLoading('registerBtn', false);
+    errEl.textContent = 'Cannot connect to server. Make sure the backend is running on port 8000.';
+  });
+}
+
+function demoMode() {
+  sessionStorage.removeItem('capm_token');
+  sessionStorage.setItem('capm_demo', '1');
+  window.location.href = 'dashboard.html';
+}
+
+// Enter key support
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('loginForm').style.display !== 'none') doLogin();
+  else doRegister();
+});
+
+// Redirect if already logged in
+if (sessionStorage.getItem('capm_token') || sessionStorage.getItem('capm_demo')) {
+  window.location.href = 'dashboard.html';
+}
+</script>
+</body>
+</html>

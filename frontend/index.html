@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPM - Cloud-Agile Performance Monitor</title>
+<meta name="description" content="Stop guessing your cloud ROI. CAPM gives engineering and product teams real-time visibility into cloud costs, Agile performance, and team efficiency - all in one score.">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f7ee; --bg2:#ffffff; --bg3:#eef1ec; --bg4:#e6ede3;
+  --border:#dde5d9; --border2:#c8d5c2;
+  --text:#1a2618; --text2:#4a6045; --text3:#8aab82;
+  --green:#2d5a3d; --green2:#3d7a52; --green3:#1f3f2a;
+  --mint:#10b981; --mint2:#d1fae5;
+  --amber:#d97706; --red:#dc2626;
+  --radius:14px; --radius-sm:9px; --radius-lg:20px;
+  --shadow:0 1px 4px rgba(45,90,61,.06),0 6px 20px rgba(45,90,61,.05);
+  --shadow-md:0 4px 28px rgba(45,90,61,.12);
+  --font:'Montserrat',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;background:rgba(240,247,238,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:12px;}
+.nav-logo-mark{font-size:11px;font-weight:700;color:var(--green);letter-spacing:2px;border:1px solid var(--border2);padding:4px 10px;border-radius:6px;}
+.nav-logo-name{font-size:16px;font-weight:500;color:var(--text);}
+.nav-links{display:flex;align-items:center;gap:28px;}
+.nav-link{font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:color .15s;}
+.nav-link:hover{color:var(--green);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.lang-switch{display:flex;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:3px;gap:2px;}
+.lang-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;border:none;background:transparent;color:var(--text3);transition:all .15s;letter-spacing:.5px;}
+.lang-btn.active{background:var(--green);color:#fff;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;font-family:var(--font);border:none;text-decoration:none;}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-primary:hover{background:var(--green2);transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--green);color:var(--green);}
+.btn-lg{padding:14px 32px;font-size:15px;border-radius:var(--radius);}
+.btn-xl{padding:16px 40px;font-size:16px;border-radius:var(--radius);}
+.btn-sm{padding:6px 13px;font-size:12px;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:100px 5% 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 50%,rgba(45,90,61,.07) 0%,transparent 70%);pointer-events:none;}
+.hero-dots{position:absolute;inset:0;background-image:radial-gradient(var(--border2) 1px,transparent 1px);background-size:32px 32px;opacity:.4;pointer-events:none;}
+.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;width:100%;}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;background:var(--mint2);color:#065f46;padding:5px 14px;border-radius:20px;border:1px solid #a7f3d0;margin-bottom:22px;letter-spacing:.5px;}
+.hero-pill-dot{width:6px;height:6px;border-radius:50%;background:#10b981;}
+h1{font-size:52px;font-weight:700;line-height:1.1;color:var(--text);margin-bottom:20px;letter-spacing:-1.5px;}
+h1 em{font-style:normal;color:var(--green);}
+.hero-sub{font-size:16px;color:var(--text2);line-height:1.75;margin-bottom:34px;font-weight:400;}
+.hero-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.hero-note{font-size:11px;font-weight:500;color:var(--text3);margin-top:16px;}
+.hero-visual{position:relative;}
+.hero-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow-md);animation:float 6s ease-in-out infinite;}
+.hero-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.hero-card-title{font-size:13px;font-weight:600;color:var(--text);}
+.hero-tag{font-size:9px;font-weight:700;background:var(--mint2);color:#065f46;padding:3px 9px;border-radius:20px;border:1px solid #a7f3d0;letter-spacing:1px;}
+.hero-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.hero-metric{background:var(--bg3);border-radius:var(--radius-sm);padding:13px;}
+.hm-val{font-size:24px;font-weight:700;color:var(--green);letter-spacing:-1px;}
+.hm-lbl{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
+.hm-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:600;background:var(--mint2);color:#065f46;padding:2px 6px;border-radius:10px;margin-top:5px;}
+.hero-bar{display:flex;gap:3px;height:44px;align-items:flex-end;}
+.hbar{border-radius:3px 3px 0 0;flex:1;background:var(--green);}
+.hbar.hi{opacity:.75;}
+.hbar.md{opacity:.35;}
+.hbar.lo{opacity:.18;}
+.hero-float-1{position:absolute;top:-16px;right:-16px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap;animation:float 4s ease-in-out infinite .5s;}
+.hero-float-2{position:absolute;bottom:-12px;left:-16px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap;animation:float 5s ease-in-out infinite 1s;}
+
+/* SECTIONS */
+.section{padding:88px 5%;}
+.section-inner{max-width:1100px;margin:0 auto;}
+.section-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+h2{font-size:38px;font-weight:700;line-height:1.15;color:var(--text);margin-bottom:14px;letter-spacing:-1px;}
+h2 em{font-style:normal;color:var(--green);}
+.section-sub{font-size:16px;color:var(--text2);line-height:1.7;max-width:540px;margin-bottom:52px;font-weight:400;}
+
+/* STATS BAR */
+.stats-bar{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:32px 40px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:0;}
+.stat-item{text-align:center;padding:0 20px;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-val{font-size:36px;font-weight:700;color:var(--green);letter-spacing:-1px;margin-bottom:4px;}
+.stat-lbl{font-size:12px;font-weight:500;color:var(--text3);}
+
+/* PROBLEMS */
+.problems-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.problem-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:all .2s;}
+.problem-card:hover{border-color:var(--border2);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.problem-icon{font-size:26px;margin-bottom:12px;}
+.problem-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:7px;}
+.problem-text{font-size:13px;font-weight:400;color:var(--text2);line-height:1.65;}
+
+/* SOLUTION */
+.solution{background:var(--green);padding:88px 5%;position:relative;overflow:hidden;}
+.solution::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 80% 50%,rgba(255,255,255,.05) 0%,transparent 60%);}
+.solution-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
+.solution .section-label{color:rgba(255,255,255,.4);}
+.solution h2{color:#fff;}
+.solution h2 em{color:#6ee7b7;}
+.solution .section-sub{color:rgba(255,255,255,.65);margin-bottom:0;}
+.solution-items{display:flex;flex-direction:column;gap:18px;}
+.solution-item{display:flex;gap:14px;align-items:flex-start;}
+.sol-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.sol-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
+.sol-text{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.feature-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:all .2s;position:relative;overflow:hidden;}
+.feature-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--border);}
+.feature-card.fc1::after{background:var(--green);}
+.feature-card.fc2::after{background:var(--mint);}
+.feature-card.fc3::after{background:var(--amber);}
+.feature-card.fc4::after{background:#2563eb;}
+.feature-card.fc5::after{background:#7c3aed;}
+.feature-card:hover{border-color:var(--border2);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.feat-icon{font-size:24px;margin-bottom:12px;}
+.feat-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.feat-text{font-size:13px;color:var(--text2);line-height:1.65;}
+.feat-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;margin-top:12px;padding:4px 10px;border-radius:20px;background:var(--bg3);color:var(--text3);}
+
+/* HOW IT WORKS */
+.how-bg{background:var(--bg3);}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;}
+.steps::before{content:'';position:absolute;top:28px;left:12%;right:12%;height:1px;background:var(--border2);z-index:0;}
+.step{text-align:center;padding:0 16px;position:relative;z-index:1;}
+.step-num{width:56px;height:56px;border-radius:50%;background:#fff;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:15px;font-weight:700;color:var(--green);box-shadow:var(--shadow);}
+.step.active .step-num{background:var(--green);border-color:var(--green);color:#fff;}
+.step-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.step-text{font-size:12px;font-weight:400;color:var(--text2);line-height:1.6;}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.price-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:34px 26px;box-shadow:var(--shadow);transition:all .2s;}
+.price-card.featured{background:var(--green);border-color:var(--green);transform:scale(1.02);}
+.price-card:hover{box-shadow:var(--shadow-md);}
+.price-plan{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.price-card.featured .price-plan{color:rgba(255,255,255,.55);}
+.price-amount{font-size:46px;font-weight:700;color:var(--text);letter-spacing:-2px;margin-bottom:4px;}
+.price-card.featured .price-amount{color:#fff;}
+.price-period{font-size:13px;color:var(--text3);margin-bottom:22px;}
+.price-card.featured .price-period{color:rgba(255,255,255,.55);}
+.price-divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.price-card.featured .price-divider{border-color:rgba(255,255,255,.15);}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:26px;}
+.price-features li{font-size:13px;font-weight:500;color:var(--text2);display:flex;align-items:center;gap:8px;}
+.price-card.featured .price-features li{color:rgba(255,255,255,.8);}
+.price-features li::before{content:'✓';font-size:11px;color:var(--green);font-weight:800;}
+.price-card.featured .price-features li::before{color:#6ee7b7;}
+
+/* DEMO FORM */
+.demo-section{background:var(--bg3);padding:88px 5%;}
+.demo-inner{max-width:600px;margin:0 auto;text-align:center;}
+.demo-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:44px;box-shadow:var(--shadow-md);margin-top:44px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+label{display:block;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+input,select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 13px;color:var(--text);font-family:var(--font);font-size:13px;font-weight:500;outline:none;transition:border-color .15s;}
+input:focus,select:focus{border-color:var(--green);background:#fff;}
+.form-submit{margin-top:18px;}
+.form-note{font-size:11px;font-weight:500;color:var(--text3);margin-top:10px;}
+
+/* FOOTER */
+footer{background:var(--green3);padding:52px 5% 28px;}
+.footer-inner{max-width:1100px;margin:0 auto;}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:44px;}
+.footer-brand .logo-name{font-size:18px;font-weight:700;color:#fff;margin-bottom:10px;}
+.footer-brand p{font-size:13px;color:rgba(255,255,255,.4);line-height:1.7;}
+.footer-col h4{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.footer-col a{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;margin-bottom:8px;transition:color .15s;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:22px;display:flex;align-items:center;justify-content:space-between;}
+.footer-copy{font-size:12px;font-weight:500;color:rgba(255,255,255,.25);}
+.footer-tagline{font-size:12px;font-weight:500;color:rgba(255,255,255,.2);}
+
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease;}
+.fade-up.visible{opacity:1;transform:translateY(0);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+@media(max-width:768px){
+  .hero-inner,.solution-inner,.footer-top{grid-template-columns:1fr;}
+  .hero-visual{display:none;}
+  h1{font-size:36px;}
+  h2{font-size:28px;}
+  .pricing-grid,.features-grid,.problems-grid{grid-template-columns:1fr;}
+  .stats-bar{grid-template-columns:1fr 1fr;}
+  .stat-item{border-right:none;border-bottom:1px solid var(--border);padding:12px 0;}
+  .stat-item:last-child{border-bottom:none;}
+  .steps{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <span class="nav-logo-mark">CAPM</span>
+    <span class="nav-logo-name">Cloud-Agile Monitor</span>
+  </div>
+  <div class="nav-links">
+    <a href="#why" class="nav-link" data-key="nav_why">Why CAPM</a>
+    <a href="#features" class="nav-link" data-key="nav_features">Features</a>
+    <a href="#how" class="nav-link" data-key="nav_how">How it works</a>
+    <a href="#pricing" class="nav-link" data-key="nav_pricing">Pricing</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+    </div>
+    <a href="login.html" class="btn btn-ghost btn-sm" data-key="nav_login">Log in</a>
+    <a href="#demo" class="btn btn-primary btn-sm" data-key="nav_demo">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-inner">
+    <div class="hero-content fade-up">
+      <div class="hero-pill"><div class="hero-pill-dot"></div><span data-key="hero_pill">AI-Powered · Cloud + Agile · Real-time</span></div>
+      <h1 data-key="hero_h1">Your cloud is spending money. Is it <em>worth it?</em></h1>
+      <p class="hero-sub" data-key="hero_sub">CAPM connects your cloud costs and Agile delivery into one live score - so you always know if your team is moving fast enough to justify the bill.</p>
+      <div class="hero-cta">
+        <a href="login.html" class="btn btn-primary btn-xl" data-key="cta_start">Start for free →</a>
+        <a href="#demo" class="btn btn-ghost btn-lg" data-key="cta_demo">Book a demo</a>
+      </div>
+      <div class="hero-note" data-key="hero_note">Free plan available · No credit card required</div>
+    </div>
+    <div class="hero-visual fade-up" style="animation-delay:.2s;">
+      <div class="hero-float-1"><span style="margin-right:6px;">✅</span><span data-key="float1">Sprint velocity up 31%</span></div>
+      <div class="hero-card">
+        <div class="hero-card-top">
+          <span class="hero-card-title" data-key="hero_card_title">Project Health Score</span>
+          <span class="hero-tag">AI POWERED</span>
+        </div>
+        <div class="hero-metrics">
+          <div class="hero-metric"><div class="hm-val">0.847</div><div class="hm-lbl">Cost Efficiency</div><div class="hm-badge">↑ Efficient</div></div>
+          <div class="hero-metric"><div class="hm-val">0.912</div><div class="hm-lbl">Velocity Stability</div><div class="hm-badge">↑ Stable</div></div>
+          <div class="hero-metric"><div class="hm-val">0.783</div><div class="hm-lbl">Resource Usage</div><div class="hm-badge">↑ Optimized</div></div>
+          <div class="hero-metric" style="background:var(--green);"><div class="hm-val" style="color:#6ee7b7;">0.856</div><div class="hm-lbl" style="color:rgba(255,255,255,.5);">Overall Score</div><div class="hm-badge" style="background:rgba(255,255,255,.15);color:#fff;">L4 Predictive</div></div>
+        </div>
+        <div class="hero-bar">
+          <div class="hbar lo" style="height:38%"></div>
+          <div class="hbar md" style="height:55%"></div>
+          <div class="hbar md" style="height:50%"></div>
+          <div class="hbar hi" style="height:72%"></div>
+          <div class="hbar md" style="height:62%"></div>
+          <div class="hbar hi" style="height:88%"></div>
+        </div>
+      </div>
+      <div class="hero-float-2"><span style="margin-right:6px;">💰</span><span data-key="float2">Cloud bill down 22%</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="section" style="padding:48px 5%;">
+  <div class="section-inner">
+    <div class="stats-bar fade-up">
+      <div class="stat-item"><div class="stat-val" data-key="stat1_val">47+</div><div class="stat-lbl" data-key="stat1_lbl">Projects analyzed</div></div>
+      <div class="stat-item"><div class="stat-val" data-key="stat2_val">31%</div><div class="stat-lbl" data-key="stat2_lbl">Avg velocity improvement</div></div>
+      <div class="stat-item"><div class="stat-val" data-key="stat3_val">22%</div><div class="stat-lbl" data-key="stat3_lbl">Cloud cost reduction</div></div>
+      <div class="stat-item"><div class="stat-val" data-key="stat4_val">4 min</div><div class="stat-lbl" data-key="stat4_lbl">To first insight</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CAPM -->
+<section class="section" id="why">
+  <div class="section-inner">
+    <div class="section-label" data-key="why_label">The Problem</div>
+    <h2 data-key="why_h2">Engineering teams are flying <em>blind on cloud costs</em></h2>
+    <p class="section-sub" data-key="why_sub">You have Jira for sprints and cloud platform for billing - but nothing that connects them. You never know if your cloud spend is actually making your team faster.</p>
+    <div class="problems-grid fade-up">
+      <div class="problem-card">
+        <div class="problem-icon">💸</div>
+        <div class="problem-title" data-key="p1_title">Surprise cloud bills</div>
+        <div class="problem-text" data-key="p1_text">Costs spike every time you push a release or hit peak load. Finance asks questions, engineers have no answers. CAPM shows you exactly which workloads are burning money and why.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">📉</div>
+        <div class="problem-title" data-key="p2_title">Inconsistent sprint delivery</div>
+        <div class="problem-text" data-key="p2_text">Velocity fluctuates week to week and nobody knows if it's the team or the infrastructure. CAPM quantifies delivery stability so you can fix the right problem.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🔧</div>
+        <div class="problem-title" data-key="p3_title">Auto-scaling that doesn't help</div>
+        <div class="problem-text" data-key="p3_text">You set up auto-scaling rules but have no idea if they're actually working. CAPM measures resource allocation efficiency so you stop paying for idle compute.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🤷</div>
+        <div class="problem-title" data-key="p4_title">Can't prove cloud ROI</div>
+        <div class="problem-text" data-key="p4_text">Leadership keeps asking if cloud investment is paying off. CAPM gives you a single, honest score to answer that question - backed by data, not gut feel.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution">
+  <div class="solution-inner">
+    <div class="fade-up">
+      <div class="section-label" data-key="sol_label">How CAPM Helps</div>
+      <h2 data-key="sol_h2">One platform that <em>connects the dots</em> between cloud and delivery</h2>
+      <p class="section-sub" data-key="sol_sub">Connect your cloud billing and project tracker in minutes. CAPM does the rest - surfacing insights you couldn't see before.</p>
+    </div>
+    <div class="solution-items fade-up">
+      <div class="solution-item">
+        <div class="sol-icon">📊</div>
+        <div>
+          <div class="sol-title" data-key="s1_title">See where your money goes</div>
+          <div class="sol-text" data-key="s1_text">CAPM tracks how your costs change relative to workload in real time. Spot waste, catch anomalies, and understand exactly what's driving your bill.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="sol-icon">🚀</div>
+        <div>
+          <div class="sol-title" data-key="s2_title">Measure team delivery health</div>
+          <div class="sol-text" data-key="s2_text">Get a stability score for your sprint velocity. Know at a glance if your team is consistent - and whether infrastructure is holding them back.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="sol-icon">🤖</div>
+        <div>
+          <div class="sol-title" data-key="s3_title">AI that predicts problems early</div>
+          <div class="sol-text" data-key="s3_text">Our ML models detect when complexity is about to hurt your velocity - before it happens. Get actionable alerts, not post-mortems.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="sol-icon">🏆</div>
+        <div>
+          <div class="sol-title" data-key="s4_title">One score for everything</div>
+          <div class="sol-text" data-key="s4_text">The Cloud-Agile Score combines cost efficiency, velocity stability, and resource usage into a single number your whole team can act on.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-label" data-key="features_label">Features</div>
+    <h2 data-key="features_h2">Everything you need to <em>run leaner IT projects</em></h2>
+    <p class="section-sub" data-key="features_sub">Built for engineering teams, CTOs, and project managers who want clarity - not more dashboards to ignore.</p>
+    <div class="features-grid fade-up">
+      <div class="feature-card fc1">
+        <div class="feat-icon">💡</div>
+        <div class="feat-title" data-key="f1_title">AI-Generated Insights</div>
+        <div class="feat-text" data-key="f1_text">Every time your data changes, CAPM's AI engine automatically surfaces the top 3 things you should know - with specific numbers and recommended actions.</div>
+        <div class="feat-badge" data-key="f1_badge">Auto-updated</div>
+      </div>
+      <div class="feature-card fc2">
+        <div class="feat-icon">📈</div>
+        <div class="feat-title" data-key="f2_title">Sprint Health Tracking</div>
+        <div class="feat-text" data-key="f2_text">Track velocity stability across sprints over time. See exactly when your delivery started slipping and what correlated with the drop.</div>
+        <div class="feat-badge" data-key="f2_badge">Per-sprint</div>
+      </div>
+      <div class="feature-card fc3">
+        <div class="feat-icon">☁️</div>
+        <div class="feat-title" data-key="f3_title">Cloud Cost Intelligence</div>
+        <div class="feat-text" data-key="f3_text">Monitor cost-per-workload efficiency for AWS, Azure, and GCP. Catch idle resource waste and scaling gaps before they compound into budget overruns.</div>
+        <div class="feat-badge" data-key="f3_badge">Multi-cloud</div>
+      </div>
+      <div class="feature-card fc4">
+        <div class="feat-icon">⚠️</div>
+        <div class="feat-title" data-key="f4_title">Complexity Risk Alerts</div>
+        <div class="feat-text" data-key="f4_text">CAPM's ML model detects when microservice complexity is approaching a tipping point - giving you 5+ sprints to act before efficiency drops by up to 42%.</div>
+        <div class="feat-badge" data-key="f4_badge">Predictive ML</div>
+      </div>
+      <div class="feature-card fc5" style="grid-column:span 2;">
+        <div class="feat-icon">🏅</div>
+        <div class="feat-title" data-key="f5_title">Team Maturity Score - 5 Levels</div>
+        <div class="feat-text" data-key="f5_text">CAPM classifies your team's cloud-agile maturity from Static to Autonomous - and tells you exactly what to improve to reach the next level. Most teams move up a level within 2 sprints of following the recommendations.</div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <span style="font-size:11px;font-weight:600;background:var(--bg3);color:var(--text3);padding:4px 10px;border-radius:6px;" data-key="mat1">🔴 Static</span>
+          <span style="font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:6px;" data-key="mat2">🟡 Reactive</span>
+          <span style="font-size:11px;font-weight:600;background:#ede9fe;color:#5b21b6;padding:4px 10px;border-radius:6px;" data-key="mat3">🟣 Proactive</span>
+          <span style="font-size:11px;font-weight:600;background:#dbeafe;color:#1e40af;padding:4px 10px;border-radius:6px;" data-key="mat4">🔵 Predictive</span>
+          <span style="font-size:11px;font-weight:600;background:var(--mint2);color:#065f46;padding:4px 10px;border-radius:6px;" data-key="mat5">🟢 Autonomous</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-bg" id="how">
+  <div class="section-inner">
+    <div class="section-label" data-key="how_label">How It Works</div>
+    <h2 data-key="how_h2">Up and running in <em>under 5 minutes</em></h2>
+    <p class="section-sub" data-key="how_sub">No integrations required to start. Enter your data manually or connect your tools - insights appear immediately.</p>
+    <div class="steps fade-up">
+      <div class="step active">
+        <div class="step-num">01</div>
+        <div class="step-title" data-key="step1_title">Add your project</div>
+        <div class="step-text" data-key="step1_text">Enter cloud costs, sprint velocities, and team size. Takes 2 minutes.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title" data-key="step2_title">Get your score</div>
+        <div class="step-text" data-key="step2_text">CAPM instantly calculates your Cloud-Agile Score and all sub-metrics.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title" data-key="step3_title">AI finds the issues</div>
+        <div class="step-text" data-key="step3_text">The AI engine surfaces specific problems and predicts risks before they hit.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title" data-key="step4_title">Share & act</div>
+        <div class="step-text" data-key="step4_text">Export a PDF report for leadership or share the live dashboard with your team.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="section-inner">
+    <div class="section-label" data-key="pricing_label">Pricing</div>
+    <h2 data-key="pricing_h2">Simple pricing, <em>no surprises</em></h2>
+    <p class="section-sub" data-key="pricing_sub">Start free. Upgrade when your team grows.</p>
+    <div class="pricing-grid fade-up">
+      <div class="price-card featured">
+        <div class="price-plan" data-key="plan1_name">Starter</div>
+        <div class="price-amount">$0</div>
+        <div class="price-period" data-key="plan1_period">Free forever</div>
+        <hr class="price-divider">
+        <ul class="price-features">
+          <li data-key="plan1_f1">1 project</li>
+          <li data-key="plan1_f2">All core metrics</li>
+          <li data-key="plan1_f3">Live dashboard</li>
+          <li data-key="plan1_f4">PDF export</li>
+          <li data-key="plan1_f5">AI insights (bring your key)</li>
+        </ul>
+        <a href="login.html" class="btn btn-ghost" style="width:100%;justify-content:center;background:#fff;color:var(--green);font-weight:700;" data-key="plan1_cta">Get started free</a>
+      </div>
+      <div class="price-card " style="background: rgb(212, 210, 210); border-bottom-color: gray; border-color: gray;">
+        <div class="price-plan" data-key="plan2_name">Business</div>
+        <div class="price-amount">$49</div>
+        <div class="price-period" data-key="plan2_period">per team / month</div>
+        <hr class="price-divider">
+        <ul class="price-features">
+          <li data-key="plan2_f1">Up to 10 projects</li>
+          <li data-key="plan2_f2">Full AI engine included</li>
+          <li data-key="plan2_f3">Predictive ML alerts</li>
+          <li data-key="plan2_f4">Project comparison</li>
+          <li data-key="plan2_f5">Multi-cloud support</li>
+          <li data-key="plan2_f6">Priority support</li>
+        </ul>
+        <a href="#demo" class="btn" style="width:100%;justify-content:center; border-color: white; color: var(--green);" data-key="plan2_cta" >Upcoming...</a>
+      </div>
+      <div class="price-card" style="background: rgb(212, 210, 210); border-bottom-color: gray; border-color: gray;">
+        <div class="price-plan" data-key="plan3_name">Enterprise</div>
+        <div class="price-amount" style="font-size:30px;padding-top:8px; color: #fff;">Custom</div>
+        <div class="price-period" data-key="plan3_period">Talk to us</div>
+        <hr class="price-divider">
+        <ul class="price-features" style=" color: #fff;">
+          <li data-key="plan3_f1">Unlimited projects</li>
+          <li data-key="plan3_f2">Jira & Azure DevOps sync</li>
+          <li data-key="plan3_f3">AWS / Azure / GCP billing</li>
+          <li data-key="plan3_f4">Custom scoring models</li>
+          <li data-key="plan3_f5">SSO & RBAC</li>
+          <li data-key="plan3_f6">Dedicated success manager</li>
+        </ul>
+        <a href="#demo" class="btn btn-ghost" style="width:100%;justify-content:center;" data-key="plan3_cta">Upcoming...</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO FORM -->
+<section class="demo-section" id="demo">
+  <div class="demo-inner">
+    <div class="section-label" data-key="demo_label">Get Started</div>
+    <h2 data-key="demo_h2">See it with <em>your own data</em></h2>
+    <p style="font-size:15px;color:var(--text2);line-height:1.7;font-weight:400;" data-key="demo_sub">Book a 20-minute demo and we'll set up your first project together - live, with your real numbers.</p>
+    <div class="demo-card fade-up">
+      <div class="form-row">
+        <div><label data-key="form_name">Your name</label><input type="text" id="fmName" placeholder="Jane Doe"></div>
+        <div><label data-key="form_email">Work email</label><input type="email" id="fmEmail" placeholder="jane@company.com"></div>
+      </div>
+      <div class="form-row">
+        <div><label data-key="form_company">Company</label><input type="text" id="fmCompany" placeholder="Acme Corp"></div>
+        <div><label data-key="form_type">Team type</label>
+          <select id="fmType">
+            <option data-key="ftype_startup">Startup / SaaS</option>
+            <option data-key="ftype_fintech">Fintech / Banking</option>
+            <option data-key="ftype_telecom">Telecom</option>
+            <option data-key="ftype_enterprise">Enterprise IT</option>
+            <option data-key="ftype_gov">Government</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-submit">
+        <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;" onclick="submitForm()" data-key="form_submit">Book my demo →</button>
+      </div>
+      <div class="form-note" data-key="form_note">No spam. We respond within a few hours.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo-name">CAPM</div>
+        <p data-key="footer_desc">Cloud-Agile Performance Monitor - giving engineering teams real-time visibility into cloud costs and delivery health.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-key="footer_col1">Product</h4>
+        <a href="login.html" data-key="footer_app">Open App</a>
+        <a href="#features" data-key="footer_features">Features</a>
+        <a href="#pricing" data-key="footer_pricing">Pricing</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-key="footer_col2">Company</h4>
+        <a href="#demo" data-key="footer_demo">Book Demo</a>
+        <a href="mailto:hello@capm.io" data-key="footer_email">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 CAPM. All rights reserved.</span>
+      <span class="footer-tagline" data-key="footer_tagline">Cloud costs. Agile delivery. One score.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const T = {
+  en: {
+    nav_why:'Why CAPM', nav_features:'Features', nav_how:'How it works', nav_pricing:'Pricing',
+    nav_login:'Log in', nav_demo:'Get Started',
+    hero_pill:'AI-Powered · Cloud + Agile · Real-time',
+    hero_h1:'Your cloud is spending money. Is it <em>worth it?</em>',
+    hero_sub:'CAPM connects your cloud costs and Agile delivery into one live score - so you always know if your team is moving fast enough to justify the bill.',
+    cta_start:'Start for free →', cta_demo:'Book a demo',
+    hero_note:'Free plan available · No credit card required',
+    float1:'Sprint velocity up 31%', float2:'Cloud bill down 22%',
+    hero_card_title:'Project Health Score',
+    stat1_val:'47+', stat1_lbl:'Projects analyzed',
+    stat2_val:'31%', stat2_lbl:'Avg velocity improvement',
+    stat3_val:'22%', stat3_lbl:'Cloud cost reduction',
+    stat4_val:'4 min', stat4_lbl:'To first insight',
+    why_label:'The Problem',
+    why_h2:'Engineering teams are flying <em>blind on cloud costs</em>',
+    why_sub:'You have Jira for sprints and cloud platform for billing - but nothing that connects them. You never know if your cloud spend is actually making your team faster.',
+    p1_title:'Surprise cloud bills', p1_text:'Costs spike every time you push a release or hit peak load. Finance asks questions, engineers have no answers. CAPM shows you exactly which workloads are burning money and why.',
+    p2_title:'Inconsistent sprint delivery', p2_text:'Velocity fluctuates week to week and nobody knows if it\'s the team or the infrastructure. CAPM quantifies delivery stability so you can fix the right problem.',
+    p3_title:'Auto-scaling that doesn\'t help', p3_text:'You set up auto-scaling rules but have no idea if they\'re actually working. CAPM measures resource allocation efficiency so you stop paying for idle compute.',
+    p4_title:'Can\'t prove cloud ROI', p4_text:'Leadership keeps asking if cloud investment is paying off. CAPM gives you a single, honest score to answer that question - backed by data, not gut feel.',
+    sol_label:'How CAPM Helps',
+    sol_h2:'One platform that <em>connects the dots</em> between cloud and delivery',
+    sol_sub:'Connect your cloud billing and project tracker in minutes. CAPM does the rest - surfacing insights you couldn\'t see before.',
+    s1_title:'See where your money goes', s1_text:'CAPM tracks how your costs change relative to workload in real time. Spot waste, catch anomalies, and understand exactly what\'s driving your bill.',
+    s2_title:'Measure team delivery health', s2_text:'Get a stability score for your sprint velocity. Know at a glance if your team is consistent - and whether infrastructure is holding them back.',
+    s3_title:'AI that predicts problems early', s3_text:'Our ML models detect when complexity is about to hurt your velocity - before it happens. Get actionable alerts, not post-mortems.',
+    s4_title:'One score for everything', s4_text:'The Cloud-Agile Score combines cost efficiency, velocity stability, and resource usage into a single number your whole team can act on.',
+    features_label:'Features',
+    features_h2:'Everything you need to <em>run leaner IT projects</em>',
+    features_sub:'Built for engineering teams, CTOs, and project managers who want clarity - not more dashboards to ignore.',
+    f1_title:'AI-Generated Insights', f1_text:'Every time your data changes, CAPM\'s AI engine automatically surfaces the top 3 things you should know - with specific numbers and recommended actions.', f1_badge:'Auto-updated',
+    f2_title:'Sprint Health Tracking', f2_text:'Track velocity stability across sprints over time. See exactly when your delivery started slipping and what correlated with the drop.', f2_badge:'Per-sprint',
+    f3_title:'Cloud Cost Intelligence', f3_text:'Monitor cost-per-workload efficiency for AWS, Azure, and GCP. Catch idle resource waste and scaling gaps before they compound into budget overruns.', f3_badge:'Multi-cloud',
+    f4_title:'Complexity Risk Alerts', f4_text:'CAPM\'s ML model detects when microservice complexity is approaching a tipping point - giving you 5+ sprints to act before efficiency drops significantly.', f4_badge:'Predictive ML',
+    f5_title:'Team Maturity Score - 5 Levels', f5_text:'CAPM classifies your team\'s cloud-agile maturity from Static to Autonomous - and tells you exactly what to improve to reach the next level. Most teams move up a level within 2 sprints of following the recommendations.',
+    mat1:'🔴 Static', mat2:'🟡 Reactive', mat3:'🟣 Proactive', mat4:'🔵 Predictive', mat5:'🟢 Autonomous',
+    how_label:'How It Works',
+    how_h2:'Up and running in <em>under 5 minutes</em>',
+    how_sub:'No integrations required to start. Enter your data manually or connect your tools - insights appear immediately.',
+    step1_title:'Add your project', step1_text:'Enter cloud costs, sprint velocities, and team size. Takes 2 minutes.',
+    step2_title:'Get your score', step2_text:'CAPM instantly calculates your Cloud-Agile Score and all sub-metrics.',
+    step3_title:'AI finds the issues', step3_text:'The AI engine surfaces specific problems and predicts risks before they hit.',
+    step4_title:'Share & act', step4_text:'Export a PDF report for leadership or share the live dashboard with your team.',
+    pricing_label:'Pricing',
+    pricing_h2:'Simple pricing, <em>no surprises</em>',
+    pricing_sub:'Start free. Upgrade when your team grows.',
+    plan1_name:'Starter', plan1_period:'Free forever', plan1_f1:'1 project', plan1_f2:'All core metrics', plan1_f3:'Live dashboard', plan1_f4:'PDF export', plan1_f5:'AI insights (bring your key)', plan1_cta:'Get started free',
+    plan2_name:'Business', plan2_period:'per team / month', plan2_f1:'Up to 10 projects', plan2_f2:'Full AI engine included', plan2_f3:'Predictive ML alerts', plan2_f4:'Project comparison', plan2_f5:'Multi-cloud support', plan2_f6:'Priority support', plan2_cta:'Upcoming...',
+    plan3_name:'Enterprise', plan3_period:'Talk to us', plan3_f1:'Unlimited projects', plan3_f2:'Jira & Azure DevOps sync', plan3_f3:'AWS / Azure / GCP billing', plan3_f4:'Custom scoring models', plan3_f5:'SSO & RBAC', plan3_f6:'Dedicated success manager', plan3_cta:'Upcoming...',
+    demo_label:'Get Started',
+    demo_h2:'See it with <em>your own data</em>',
+    demo_sub:'Book a 20-minute demo and we\'ll set up your first project together - live, with your real numbers.',
+    form_name:'Your name', form_email:'Work email', form_company:'Company', form_type:'Team type',
+    ftype_startup:'Startup / SaaS', ftype_fintech:'Fintech / Banking', ftype_telecom:'Telecom', ftype_enterprise:'Enterprise IT', ftype_gov:'Government',
+    form_submit:'Book my demo →', form_note:'No spam. We respond within a few hours.',
+    footer_desc:'Cloud-Agile Performance Monitor - giving engineering teams real-time visibility into cloud costs and delivery health.',
+    footer_col1:'Product', footer_col2:'Company',
+    footer_app:'Open App', footer_features:'Features', footer_pricing:'Pricing',
+    footer_demo:'Book Demo', footer_email:'Contact',
+    footer_tagline:'Cloud costs. Agile delivery. One score.',
+  },
+  ru: {
+    nav_why:'Зачем CAPM', nav_features:'Функции', nav_how:'Как работает', nav_pricing:'Цены',
+    nav_login:'Войти', nav_demo:'Начать',
+    hero_pill:'На базе ИИ · Облако + Agile · В реальном времени',
+    hero_h1:'Ваше облако тратит деньги. Оно <em>того стоит?</em>',
+    hero_sub:'CAPM соединяет облачные расходы и Agile-доставку в один живой показатель - чтобы вы всегда знали, достаточно ли быстро движется команда.',
+    cta_start:'Начать бесплатно →', cta_demo:'Записаться на демо',
+    hero_note:'Бесплатный тариф доступен · Карта не нужна',
+    float1:'Скорость спринтов +31%', float2:'Облачные расходы -22%',
+    hero_card_title:'Здоровье проекта',
+    stat1_val:'47+', stat1_lbl:'Проектов проанализировано',
+    stat2_val:'31%', stat2_lbl:'Рост скорости команды',
+    stat3_val:'22%', stat3_lbl:'Снижение облачных затрат',
+    stat4_val:'4 мин', stat4_lbl:'До первого инсайта',
+    why_label:'Проблема',
+    why_h2:'IT-команды работают вслепую <em>по облачным расходам</em>',
+    why_sub:'У вас есть Jira для спринтов и cloud platform для счетов - но ничего, что их связывает. Вы не знаете, окупается ли облако.',
+    p1_title:'Неожиданные счета за облако', p1_text:'Расходы растут при каждом релизе или пике нагрузки. Финансовый отдел задаёт вопросы, разработчики не знают ответов. CAPM показывает, какие задачи сжигают деньги и почему.',
+    p2_title:'Нестабильная доставка', p2_text:'Скорость спринтов скачет, и никто не знает - это команда или инфраструктура. CAPM измеряет стабильность доставки, чтобы вы решали правильную проблему.',
+    p3_title:'Автомасштабирование без результата', p3_text:'Вы настроили автомасштабирование, но не знаете, работает ли оно. CAPM измеряет эффективность использования ресурсов, чтобы вы не платили за простой.',
+    p4_title:'Нельзя доказать ROI от облака', p4_text:'Руководство спрашивает, окупается ли облако. CAPM даёт честный ответ в виде одного числа - на основе данных, а не интуиции.',
+    sol_label:'Как CAPM помогает',
+    sol_h2:'Одна платформа, которая <em>соединяет облако и доставку</em>',
+    sol_sub:'Подключите биллинг и трекер задач за несколько минут. CAPM сделает всё остальное.',
+    s1_title:'Видите, куда уходят деньги', s1_text:'CAPM отслеживает, как расходы меняются относительно нагрузки в реальном времени. Находит потери и объясняет счёт.',
+    s2_title:'Измеряете здоровье команды', s2_text:'Получите оценку стабильности скорости спринтов. Сразу видно, последовательна ли команда и мешает ли ей инфраструктура.',
+    s3_title:'ИИ предупреждает о проблемах', s3_text:'ML-модели обнаруживают, когда сложность вот-вот ударит по скорости - до того, как это случится.',
+    s4_title:'Один показатель для всего', s4_text:'Cloud-Agile Score объединяет эффективность затрат, стабильность и использование ресурсов в одно число.',
+    features_label:'Функции',
+    features_h2:'Всё для <em>более эффективных IT-проектов</em>',
+    features_sub:'Создано для инженерных команд, CTO и менеджеров, которым нужна ясность - а не ещё один дашборд.',
+    f1_title:'ИИ-инсайты', f1_text:'При каждом обновлении данных ИИ автоматически выделяет 3 главных момента - с конкретными цифрами и рекомендациями.', f1_badge:'Авто-обновление',
+    f2_title:'Мониторинг спринтов', f2_text:'Отслеживайте стабильность скорости спринтов во времени. Видите точно, когда доставка начала проседать.', f2_badge:'По спринтам',
+    f3_title:'Аналитика облачных затрат', f3_text:'Мониторинг эффективности затрат для AWS, Azure и GCP. Поймаете простой ресурсов до того, как счета вырастут.', f3_badge:'Мультиоблако',
+    f4_title:'Предупреждения о рисках', f4_text:'ML-модель CAPM обнаруживает, когда сложность микросервисов приближается к критической точке - у вас есть 5+ спринтов, чтобы среагировать.', f4_badge:'Предиктивный ML',
+    f5_title:'Уровень зрелости команды - 5 уровней', f5_text:'CAPM классифицирует уровень зрелости вашей команды от Статичного до Автономного - и говорит, что нужно улучшить для перехода на следующий уровень.',
+    mat1:'🔴 Статичный', mat2:'🟡 Реактивный', mat3:'🟣 Проактивный', mat4:'🔵 Предиктивный', mat5:'🟢 Автономный',
+    how_label:'Как работает',
+    how_h2:'Запуск за <em>менее чем 5 минут</em>',
+    how_sub:'Интеграции не обязательны. Введите данные вручную или подключите инструменты - инсайты появятся сразу.',
+    step1_title:'Добавьте проект', step1_text:'Введите облачные расходы, скорости спринтов и размер команды. Займёт 2 минуты.',
+    step2_title:'Получите оценку', step2_text:'CAPM мгновенно рассчитывает Cloud-Agile Score и все метрики.',
+    step3_title:'ИИ находит проблемы', step3_text:'Движок ИИ выявляет конкретные проблемы и предсказывает риски.',
+    step4_title:'Делитесь и действуйте', step4_text:'Экспортируйте PDF-отчёт или поделитесь живым дашбордом с командой.',
+    pricing_label:'Цены',
+    pricing_h2:'Понятные тарифы, <em>без сюрпризов</em>',
+    pricing_sub:'Начните бесплатно. Переходите на следующий план по мере роста.',
+    plan1_name:'Стартер', plan1_period:'Бесплатно навсегда', plan1_f1:'1 проект', plan1_f2:'Все основные метрики', plan1_f3:'Живой дашборд', plan1_f4:'Экспорт PDF', plan1_f5:'ИИ-инсайты (свой ключ)', plan1_cta:'Начать бесплатно',
+    plan2_name:'Бизнес', plan2_period:'на команду / месяц', plan2_f1:'До 10 проектов', plan2_f2:'Полный ИИ-движок включён', plan2_f3:'Предиктивные ML-алерты', plan2_f4:'Сравнение проектов', plan2_f5:'Мультиоблачная поддержка', plan2_f6:'Приоритетная поддержка', plan2_cta:'В разработке...',
+    plan3_name:'Enterprise', plan3_period:'Обсудим', plan3_f1:'Неограниченные проекты', plan3_f2:'Синхронизация Jira & Azure DevOps', plan3_f3:'AWS / Azure / GCP биллинг', plan3_f4:'Кастомные модели скоринга', plan3_f5:'SSO & RBAC', plan3_f6:'Персональный менеджер', plan3_cta:'В разработке...',
+    demo_label:'Начать',
+    demo_h2:'Посмотрите на <em>своих данных</em>',
+    demo_sub:'Запишитесь на 20-минутное демо - настроим ваш первый проект вместе, с реальными цифрами.',
+    form_name:'Ваше имя', form_email:'Рабочий email', form_company:'Компания', form_type:'Тип команды',
+    ftype_startup:'Стартап / SaaS', ftype_fintech:'Финтех / Банк', ftype_telecom:'Телеком', ftype_enterprise:'Корпоративный IT', ftype_gov:'Госсектор',
+    form_submit:'Записаться на демо →', form_note:'Без спама. Отвечаем в течение нескольких часов.',
+    footer_desc:'Cloud-Agile Performance Monitor - даём инженерным командам видимость в облачные расходы и здоровье доставки.',
+    footer_col1:'Продукт', footer_col2:'Компания',
+    footer_app:'Открыть приложение', footer_features:'Функции', footer_pricing:'Цены',
+    footer_demo:'Записаться на демо', footer_email:'Контакты',
+    footer_tagline:'Облачные затраты. Agile-доставка. Один показатель.',
+  }
+};
+
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === l));
+  document.querySelectorAll('[data-key]').forEach(el => {
+    const v = T[l][el.dataset.key];
+    if (v) el.innerHTML = v;
+  });
+  document.documentElement.lang = l;
+}
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .1 });
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+function submitForm() {
+  const n = document.getElementById('fmName').value;
+  const e = document.getElementById('fmEmail').value;
+  if (!n || !e) { alert(lang === 'ru' ? 'Заполните имя и email.' : 'Please fill in your name and email.'); return; }
+  const btn = event.currentTarget;
+  btn.textContent = lang === 'ru' ? '✅ Отправлено!' : '✅ Sent! We\'ll be in touch.';
+  btn.style.background = 'var(--mint)';
+  setTimeout(() => { btn.innerHTML = T[lang]['form_submit']; btn.style.background = ''; }, 3500);
+}
+
+setLang('en');
+</script>
+</body>
+</html>
