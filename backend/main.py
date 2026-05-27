@@ -279,8 +279,11 @@ async def list_projects(user=Depends(current_user), db: AsyncSession = Depends(g
              "team_size": p.team_size, "baseline": p.baseline, "description": p.description,
              "created_at": p.created_at.isoformat(), "updated_at": p.updated_at.isoformat()}
         if latest:
-            d["latest"] = {"Hes": latest.Hes, "CASI": latest.CASI, "Oc": latest.Oc,
-                           "maturity": latest.ml_maturity, "ceiling_risk": latest.ml_ceiling_risk}
+            d["latest"] = {
+                "Hes": latest.Hes, "CASI": latest.CASI, "Oc": latest.Oc,
+                "CEI": latest.CEI, "SVS": latest.SVS, "RRE": latest.RRE,
+                "maturity": latest.ml_maturity, "ceiling_risk": latest.ml_ceiling_risk
+            }
         out.append(d)
     return out
 
@@ -405,7 +408,14 @@ async def get_latest(pid: int, user=Depends(current_user), db: AsyncSession = De
                "ceiling_prob": m.ml_ceiling_prob, "hes_next_sprint": m.ml_hes_next},
         "maturity_rule": m.maturity_rule,
         "alerts": json.loads(m.alerts_json or "[]"),
-        "sprint_num": m.sprint_num, "period": m.period
+        "sprint_num": m.sprint_num, "period": m.period,
+        "costs": json.loads(m.costs_json or "[]"),
+        "workload": json.loads(m.workload_json or "[]"),
+        "velocities": json.loads(m.velocities_json or "[]"),
+        "rre_pct": m.rre_pct,
+        "w1": m.w1 if m.w1 is not None else 0.35,
+        "w2": m.w2 if m.w2 is not None else 0.40,
+        "w3": m.w3 if m.w3 is not None else 0.25
     }
 
 # ─────────────────────────────────────────────
