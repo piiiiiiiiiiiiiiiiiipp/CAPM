@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAPM — Cloud-Agile Performance Monitor</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231a3a2a'/%3E%3Ctext x='16' y='23' font-family='Montserrat,Arial,sans-serif' font-size='20' font-weight='700' fill='%2350fa7b' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -1228,60 +1229,13 @@ function toggleKey() {
   b.textContent=i.type==='password'?'show':'hide';
 }
 
-// ════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', function() {
-  if (S.key) {
-    document.getElementById('apiDot').classList.add('on');
-    document.getElementById('apiTxt').textContent='AI Engine Ready';
-    document.getElementById('apiIn').value=S.key;
-  }
-  initAuth();
-  recalc();
-});
-
-
-// ════════════════════════════════════════
-// BACKEND INTEGRATION
-// ════════════════════════════════════════
-var API = 'http://localhost:8000';
-var TOKEN = sessionStorage.getItem('capm_token') || '';
-var USER  = JSON.parse(sessionStorage.getItem('capm_user') || 'null');
-var DEMO  = !!sessionStorage.getItem('capm_demo');
-
-function apiHeaders() {
-  var h = {'Content-Type': 'application/json'};
-  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
-  return h;
-}
-
-function initAuth() {
-  // If no token and no demo mode — redirect to login
-  if (!TOKEN && !DEMO) {
-    window.location.href = 'login.html';
-    return;
-  }
-  if (DEMO) {
-    document.getElementById('demoBanner').style.display = 'flex';
-    document.getElementById('userBar').style.display = 'flex';
-    document.getElementById('userName').textContent = 'Demo User';
-    document.getElementById('userRole').textContent = 'demo mode';
-    document.getElementById('userAv').textContent = 'D';
-    return;
-  }
-  if (USER) {
-    showUserBar(USER);
-    loadUserProjects();
-  }
-}
-
-function showUserBar(user) {
-  var bar = document.getElementById('userBar');
-  bar.style.display = 'flex';
-  document.getElementById('userName').textContent = user.name || user.email;
-  document.getElementById('userRole').textContent = user.company || 'member';
-  document.getElementById('userAv').textContent   = (user.name||user.email||'U')[0].toUpperCase();
+// ── BACKEND ──
+var API='https://capmbe.onrender.com',TOKEN=sessionStorage.getItem('capm_token')||'',USER=JSON.parse(sessionStorage.getItem('capm_user')||'null'),DEMO=!!sessionStorage.getItem('capm_demo');
+function apiHeaders(){var h={'Content-Type':'application/json'};if(TOKEN)h['Authorization']='Bearer '+TOKEN;return h;}
+function initAuth(){
+  if(!TOKEN&&!DEMO){window.location.href='login.html';return;}
+  if(DEMO){document.getElementById('demoBanner').style.display='flex';document.getElementById('userBar').style.display='flex';document.getElementById('userName').textContent='Demo User';document.getElementById('userRole').textContent='demo mode';document.getElementById('userAv').textContent='D';return;}
+  if(USER){var bar=document.getElementById('userBar');bar.style.display='flex';document.getElementById('userName').textContent=USER.name||USER.email;document.getElementById('userRole').textContent=USER.company||'member';document.getElementById('userAv').textContent=(USER.name||USER.email||'U')[0].toUpperCase();}
 }
 
 function logout(e) {
