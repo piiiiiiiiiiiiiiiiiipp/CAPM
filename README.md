@@ -1,11 +1,20 @@
-<<<<<<< HEAD
-# CAPM
-=======
 # CAPM — Cloud-Agile Performance Monitor
 **Dissertation Project — Khanafiyeva Elnara, 2025**
 *Evaluating the Impact of Cloud Technologies on IT Project Management Efficiency*
 
 ---
+
+# Если venv уже есть:
+.venv\Scripts\activate
+
+# Установи пакеты
+pip install fastapi uvicorn asyncpg sqlalchemy alembic python-dotenv scikit-learn numpy
+
+# Или если есть requirements.txt:
+pip install -r requirements.txt
+
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+ python -m http.server 5500       
 
 ## Quick Start (Docker — recommended)
 
@@ -146,4 +155,3 @@ GET    /health                     Health check
 ```
 
 All protected routes require: `Authorization: Bearer <token>`
->>>>>>> master
