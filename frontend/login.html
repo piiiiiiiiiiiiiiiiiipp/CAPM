@@ -169,7 +169,7 @@ function doRegister() {
   })
   .catch(function() {
     setLoading('registerBtn', false);
-    errEl.textContent = 'Cannot connect to server. Make sure the backend is running on port 8000.';
+    errEl.textContent = 'Cannot connect to server. Make sure the backend is running.';
   });
 }
 
